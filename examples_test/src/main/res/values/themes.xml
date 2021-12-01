@@ -1,0 +1,27 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.ExamplesTest" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/six15_red</item>
+        <item name="colorPrimaryVariant">@color/six15_dark_red</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/six15_red</item>
+        <item name="colorSecondaryVariant">@color/six15_dark_red</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+        <item name="colorAccent">@color/six15_red</item>
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="snackbarStyle">@style/SnackbarTheme</item>
+
+    </style>
+
+    <style name="SnackbarTheme" parent="@style/Widget.Design.Snackbar">
+        <item name="cornerRadius">0dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_margin">18dp</item>
+        <item name="actionTextColorAlpha">1.0</item>
+    </style>
+
+    <style name="Theme.HUD" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>

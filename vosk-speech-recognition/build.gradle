@@ -1,0 +1,53 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 31
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 30
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'x86'
+        }
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.kotlin_module")
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.google.code.gson:gson:2.8.7'
+
+    implementation project(':hudservice-aidl')
+    implementation project(':examples')
+
+    //This depends on Vosk's maven repository, which should be added in your top level build.gradle
+    //allprojects {
+    //    repositories {
+    //        maven {
+    //            url 'https://alphacephei.com/maven/'
+    //        }
+    //    }
+    //}
+    api group: 'com.alphacephei', name: 'vosk-android', version: '0.3.21'
+    //This is the Vosk english model.
+    implementation project(':vosk-speech-recognition-model')
+    implementation 'net.java.dev.jna:jna:5.8.0@aar'
+}

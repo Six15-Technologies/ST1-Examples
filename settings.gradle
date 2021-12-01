@@ -1,0 +1,6 @@
+include ':hudservice-aidl'
+include ':examples_test'
+include ':examples'
+include ':vosk-speech-recognition-model'
+include ':vosk-speech-recognition'
+rootProject.name = "ST1 Examples"

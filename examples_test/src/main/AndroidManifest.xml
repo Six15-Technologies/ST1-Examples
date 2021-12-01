@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.six15.examples_test">
+
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="true" />
+
+    <queries>
+        <intent>
+            <action android:name="com.six15.hudservice.SERVICE" />
+        </intent>
+    </queries>
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ExamplesTest">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".static_image.StaticImageActivity" />
+        <activity android:name=".presentation.PresentingActivity" />
+        <activity android:name=".presentation.BackgroundPresentingActivity" />
+        <activity android:name=".view_rendering.BackgroundViewRenderingActivity" />
+        <activity android:name=".view_mirroring.ViewMirroringOnDrawActivity" />
+        <activity android:name=".view_mirroring.ViewMirroringPixelCopyActivity" />
+        <activity android:name=".camera.CameraActivity" />
+        <activity android:name=".voice_to_text.VoiceToTextActivity" />
+        <activity android:name=".screen_mirroring.ScreenMirroringActivity" />
+        <activity android:name=".intent_interface.IntentInterfaceActivity" />
+
+        <service android:name=".presentation.BackgroundPresentingService" />
+        <service android:name=".view_rendering.BackgroundViewRenderingService" />
+
+    </application>
+
+</manifest>

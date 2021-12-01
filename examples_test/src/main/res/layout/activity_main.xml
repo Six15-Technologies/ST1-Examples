@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        app:title="Select an ST1 Example"
+        app:titleTextColor="@android:color/white" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/activity_main_coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_vertical"
+        android:orientation="vertical">
+
+        <GridLayout
+            android:id="@+id/activity_main_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnCount="2">
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startStaticImageActivity"
+                android:text="Static Image Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startScreenMirroringActivity"
+                android:text="Screen Mirroring Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startPresentingActivity"
+                android:text="Presenting Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startBackgroundPresentingActivity"
+                android:text="Background Presenting Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startIntentInterfaceActivity"
+                android:text="Intent Interface Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startBackgroundViewRenderingActivity"
+                android:text="Background View Rendering Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startViewMirroringOnDrawActivity"
+                android:text="View Mirroring OnDraw Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startViewMirroringPixelCopyActivity"
+                android:text="View Mirroring PixelCopy Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraActivity"
+                android:text="Camera Activity" />
+
+            <Button
+                style="@style/activity_main_button_style"
+                android:onClick="startVoiceToTextActivity"
+                android:text="Voice To Text Activity" />
+
+
+        </GridLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
