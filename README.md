@@ -2,9 +2,13 @@ ST1 Examples
 ===
 ST1 Examples is an Android Studio project which helps developers quickly integrate the Six15 ST1 Head Mounted Display (HMD) into their app.
 
-For more documentation see https://six15.engineering, and particularly https://six15.engineering/examples.html
+For more documentation see https://six15.engineering, and particularly https://six15.engineering/examples
 
-Running these examples require the Six15 service application (either "HMD Service" or "ST1 Connect") to be installed on your device. The APK for "HMD Service" can be found in our Android SDK release at https://six15.engineering/product_features.html#software-development-kit.
+Running these examples require the Six15 service application (either "HMD Service" or "ST1 Connect") to be installed on your device.
+
+The APK for "HMD Service" can be found in our Android SDK release at https://six15.engineering/st1_sdk_overview/#latest-release.
+
+The "Six15 ST1" app is available on the Google Play Store https://play.google.com/store/apps/details?id=com.six15.st1_connect.
 
 Modules
 ===
