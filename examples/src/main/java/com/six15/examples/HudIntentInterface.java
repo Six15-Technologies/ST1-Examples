@@ -21,9 +21,12 @@
 
 package com.six15.examples;
 
+import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -31,7 +34,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.six15.examples.connection.HudServiceConnection;
+import java.util.List;
 
 public class HudIntentInterface {
     private static final String TAG = HudIntentInterface.class.getSimpleName();
@@ -64,24 +67,63 @@ public class HudIntentInterface {
 
     public static void startIntentInterface(Context context, @Nullable String initialAction, @Nullable Bundle args) {
         //Needs queries
-        Intent intent = HudServiceConnection.createExplicitFromImplicitIntent(context, new Intent(HudIntentInterface.ACTION_START_INTENT_SERVICE));
-        if (intent == null) {
-            Log.i(TAG, "startIntentInterface: Could not find Intent Interface");
+        ResolveInfo resolveInfo = findFirstMatchingActivity(context);
+
+        if (resolveInfo == null) {
+            Log.w(TAG, "startIntentInterface: Could not find Intent Interface.");
             return;
         }
+
+        String packageName = resolveInfo.activityInfo.packageName;
+        String className = resolveInfo.activityInfo.name;
+        ComponentName component = new ComponentName(packageName, className);
+
+        Intent explicitIntent = new Intent(HudIntentInterface.ACTION_START_INTENT_SERVICE);
+
+        // Set the component to be explicit
+        explicitIntent.setComponent(component);
+
         if (initialAction != null) {
-            intent.setAction(initialAction);
+            explicitIntent.setAction(initialAction);
         }
         if (args != null) {
-            intent.putExtras(args);
+            explicitIntent.putExtras(args);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
-        } else {
-            context.startService(intent);
-        }
+        //Android 11 blocks apps (even foreground ones) from starting service's in apps which are not running.
+        //The activity that is started will simply forward our request to the service while starting it, then close itself.
+        //The activity is themed to be transparent.
+        context.startActivity(explicitIntent);
     }
 
+    @Nullable
+    public static ResolveInfo findFirstMatchingActivity(@NonNull Context context) {
+        PackageManager pm = context.getPackageManager();
+        //The following must be inside the manifest tag of your AndroidManifest.
+        //    <queries>
+        //        <intent>
+        //            <action android:name="com.six15.hudservice.ACTION_START_INTENT_SERVICE" />
+        //        </intent>
+        //    </queries>
+
+        Intent implicitIntent = new Intent(HudIntentInterface.ACTION_START_INTENT_SERVICE);
+        @SuppressLint("QueryPermissionsNeeded")
+        List<ResolveInfo> resolveInfo = pm.queryIntentActivities(implicitIntent, 0);
+
+        if (resolveInfo == null) {
+            return null;
+        }
+        for (String packageName : HudPackageNames.NAMES) {
+            for (ResolveInfo info : resolveInfo) {
+                if (info.activityInfo.packageName.equals(packageName)) {
+                    return info;
+                }
+            }
+        }
+        if (resolveInfo.size() > 0){
+            return resolveInfo.get(0);
+        }
+        return null;
+    }
 
     //Color.parseColor(String) can take String "#rrggbb" or "#aaffrrbb" since it can check for 6 or 8 digits.
     //To go the other direction HudIntentInterface.colorToString(int) takes an int, but and can't differentiate values with or without alpha.

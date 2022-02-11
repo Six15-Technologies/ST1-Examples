@@ -18,6 +18,8 @@ android {
 
     signingConfigs {
         release {
+            enableV3Signing(true)
+            enableV4Signing(true)
             def propsFile = rootProject.file('keystore.properties')
             if (propsFile.exists()) {
                 def props = new Properties()

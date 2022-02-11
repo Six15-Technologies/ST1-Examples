@@ -24,6 +24,7 @@ package com.six15.examples_test.static_image;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -33,11 +34,14 @@ import androidx.annotation.Nullable;
 
 import com.six15.examples.connection.HudCallbacks;
 import com.six15.examples.connection.HudCompatActivity;
+import com.six15.examples.helpers.HudBitmapHelper;
 import com.six15.examples_test.R;
+import com.six15.hudservice.ByteFrame;
 import com.six15.hudservice.EnumHudMode;
 import com.six15.hudservice.IHudService;
 import com.six15.hudservice.ImageFrame;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 public class StaticImageActivity extends HudCompatActivity {
@@ -87,9 +91,28 @@ public class StaticImageActivity extends HudCompatActivity {
         }
         InputStream is = getResources().openRawResource(R.raw.test_image);
         Bitmap bitmap = BitmapFactory.decodeStream(is);
+//        showImageWithAutoResize(bitmap);
+        showImageWithManualCrop(bitmap);
+    }
+
+    private void showImageWithAutoResize(Bitmap bitmap) {
         try {
             mHmdService.setAutoResizeImage(true);
             mHmdService.sendImageToHud(new ImageFrame(bitmap));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showImageWithManualCrop(Bitmap bitmap) {
+        Bitmap resizedBitmap = HudBitmapHelper.calculateAdjustedBitmap(bitmap, null, null, new Paint());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 95, baos);
+        byte[] jpgBuffer = baos.toByteArray();
+
+        try {
+            mHmdService.sendBufferToHud(new ByteFrame(jpgBuffer));
         } catch (RemoteException e) {
             e.printStackTrace();
         }

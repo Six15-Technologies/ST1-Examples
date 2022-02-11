@@ -21,6 +21,7 @@
 
 package com.six15.examples.connection;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -45,7 +46,7 @@ public class HudServiceConnection {
     private final HudCallbacks mCallbacks;
     private final ServiceConnection mServiceConnection;
     IHudService mHudService;
-    private boolean mIsBound = false;
+    private boolean mNeedsToCallUnbind = false;
 
     public HudServiceConnection(@NonNull Context context, @NonNull HudCallbacks callbacks) {
         mContext = context;
@@ -80,10 +81,24 @@ public class HudServiceConnection {
 
             @Override
             public void onNullBinding(ComponentName name) {
+                try {
+                    mContext.unbindService(mServiceConnection);
+                } catch (IllegalArgumentException ignore) {
+                }
+                mNeedsToCallUnbind = false;
                 Intent requestIntent = mContext.getPackageManager().getLaunchIntentForPackage(name.getPackageName());
                 mCallbacks.onServiceConnectionChanged(false, null, requestIntent);
             }
 
+            @Override
+            public void onBindingDied(ComponentName name) {
+                try {
+                    mContext.unbindService(mServiceConnection);
+                } catch (IllegalArgumentException ignore) {
+                }
+                mNeedsToCallUnbind = false;
+                mCallbacks.onServiceConnectionChanged(false, null, null);
+            }
         };
     }
 
@@ -97,7 +112,7 @@ public class HudServiceConnection {
     }
 
     public void connectToService() {
-        Intent i = createExplicitFromImplicitIntent(mContext, new Intent(Constants.ACTION_HUD_SERVICE));
+        Intent i = createExplicitServiceFromImplicitIntent(mContext, new Intent(Constants.ACTION_HUD_SERVICE));
         if (i == null) {
             Log.e(TAG, "connectToService: No service found");
             String requestPermissionPackageName = null;
@@ -115,8 +130,9 @@ public class HudServiceConnection {
             mCallbacks.onServiceConnectionChanged(false, null, requestIntent);
             return;
         }
+        Log.i(TAG, "connectToService: doing bind");
         mContext.bindService(i, mServiceConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
+        mNeedsToCallUnbind = true;
 
     }
 
@@ -128,13 +144,13 @@ public class HudServiceConnection {
                 e.printStackTrace();
             }
         }
-        if (mIsBound) {
+        if (mNeedsToCallUnbind) {
             mContext.unbindService(mServiceConnection);
-            mIsBound = false;
+            mNeedsToCallUnbind = false;
         }
     }
 
-    public static Intent createExplicitFromImplicitIntent(Context context, Intent implicitIntent) {
+    public static Intent createExplicitServiceFromImplicitIntent(Context context, Intent implicitIntent) {
         // Retrieve all services that can match the given intent
         PackageManager pm = context.getPackageManager();
 
@@ -144,11 +160,14 @@ public class HudServiceConnection {
         //            <action android:name="com.six15.hudservice.SERVICE" />
         //        </intent>
         //    </queries>
-
+        @SuppressLint("QueryPermissionsNeeded")
         List<ResolveInfo> resolveInfo = pm.queryIntentServices(implicitIntent, 0);
 
         // Make sure we have an implementation.
         if (resolveInfo == null || resolveInfo.size() != 1) {
+            if (resolveInfo != null) {
+                Log.i(TAG, "createExplicitServiceFromImplicitIntent: Found multiple services. Num:" + resolveInfo.size());
+            }
             return null;
         }
 
@@ -156,6 +175,42 @@ public class HudServiceConnection {
         ResolveInfo serviceInfo = resolveInfo.get(0);
         String packageName = serviceInfo.serviceInfo.packageName;
         String className = serviceInfo.serviceInfo.name;
+        ComponentName component = new ComponentName(packageName, className);
+
+        // Create a new intent. Use the old one for extras and such reuse
+        Intent explicitIntent = new Intent(implicitIntent);
+
+        // Set the component to be explicit
+        explicitIntent.setComponent(component);
+
+        return explicitIntent;
+    }
+
+    public static Intent createExplicitActivityFromImplicitIntent(Context context, Intent implicitIntent) {
+        // Retrieve all services that can match the given intent
+        PackageManager pm = context.getPackageManager();
+
+        //The following must be inside the manifest tag of your AndroidManifest. (assuming implicitIntent's action is "com.six15.hudservice.ACTION_START_INTENT_SERVICE")
+        //    <queries>
+        //        <intent>
+        //            <action android:name="com.six15.hudservice.ACTION_START_INTENT_SERVICE" />
+        //        </intent>
+        //    </queries>
+        @SuppressLint("QueryPermissionsNeeded")
+        List<ResolveInfo> resolveInfo = pm.queryIntentActivities(implicitIntent, 0);
+
+        // Make sure we have an implementation.
+        if (resolveInfo == null || resolveInfo.size() != 1) {
+            if (resolveInfo != null) {
+                Log.i(TAG, "createExplicitServiceFromImplicitIntent: Found multiple activities. Num:" + resolveInfo.size());
+            }
+            return null;
+        }
+
+        // Get component info and create ComponentName
+        ResolveInfo serviceInfo = resolveInfo.get(0);
+        String packageName = serviceInfo.activityInfo.packageName;
+        String className = serviceInfo.activityInfo.name;
         ComponentName component = new ComponentName(packageName, className);
 
         // Create a new intent. Use the old one for extras and such reuse
