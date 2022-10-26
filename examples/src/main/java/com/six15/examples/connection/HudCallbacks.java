@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.six15.hudservice.ByteFrame;
+import com.six15.hudservice.Cam720FPS;
 import com.six15.hudservice.DebugMessage;
 import com.six15.hudservice.DeviceExtraInfo;
 import com.six15.hudservice.DeviceInfo;
@@ -358,6 +359,10 @@ public abstract class HudCallbacks extends IHudServiceCallback.Stub {
                     DisplayBrightness displayBrightness = new Gson().fromJson(jsonText, DisplayBrightness.class);
                     onDisplay(displayBrightness);
                     break;
+                case HC_DEV_720_FPS:
+                    Cam720FPS cam720FPS = new Gson().fromJson(jsonText, Cam720FPS.class);
+                    onCam720pFPS(cam720FPS);
+                    break;
                 default:
                     if (DEBUG)
                         Log.i(TAG, String.format("Unhandled JSON:%x %d : %s", cmd, cmd, jsonText));
@@ -394,5 +399,8 @@ public abstract class HudCallbacks extends IHudServiceCallback.Stub {
     }
 
     public void onDeviceInfo(@Nullable DeviceInfo deviceInfo) throws RemoteException {
+    }
+
+    public void onCam720pFPS(@Nullable Cam720FPS cam720FPS) throws RemoteException {
     }
 }

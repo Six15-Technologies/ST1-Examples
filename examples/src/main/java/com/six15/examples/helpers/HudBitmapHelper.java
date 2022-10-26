@@ -49,6 +49,10 @@ public class HudBitmapHelper {
 
     //Scale and crop a bitmap to HUD size such that, of the valid pixels rectInp, cropRect pixels are visible.
     //Black bars are added to maintain aspect ratio.
+    public static Bitmap calculateAdjustedBitmap(@NonNull Bitmap bmpInp) {
+       return calculateAdjustedBitmap(bmpInp, null, null, new Paint());
+    }
+
     public static Bitmap calculateAdjustedBitmap(@NonNull Bitmap bmpInp, @Nullable Rect rectInp, @Nullable Rect cropRect, @NonNull Paint paint) {
 
         if (rectInp == null) {

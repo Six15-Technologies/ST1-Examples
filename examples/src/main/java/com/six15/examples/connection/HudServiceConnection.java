@@ -130,7 +130,6 @@ public class HudServiceConnection {
             mCallbacks.onServiceConnectionChanged(false, null, requestIntent);
             return;
         }
-        Log.i(TAG, "connectToService: doing bind");
         mContext.bindService(i, mServiceConnection, Context.BIND_AUTO_CREATE);
         mNeedsToCallUnbind = true;
 

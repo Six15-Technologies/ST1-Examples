@@ -21,38 +21,79 @@
 
 package com.six15.examples_test.view_rendering;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.six15.examples_test.R;
 
 public class BackgroundViewRenderingActivity extends AppCompatActivity {
     private static final String TAG = BackgroundViewRenderingActivity.class.getSimpleName();
+    private boolean mIsChecked;
+    private ToggleButton mToggleButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_button);
-        ToggleButton button = findViewById(R.id.activity_button_toggle_button);
-        button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mToggleButton = findViewById(R.id.activity_button_toggle_button);
+        mToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.d(TAG, "onCheckedChanged() called with: buttonView = [" + buttonView + "], isChecked = [" + isChecked + "]");
-                startServiceWrapper(isChecked);
+                if (mIsChecked == isChecked) {
+                    return;
+                }
+                mIsChecked = isChecked;
+                startServiceWrapper();
             }
         });
     }
 
-    private void startServiceWrapper(boolean isChecked) {
+    private ActivityResultLauncher<String> mRequestNotificationPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    startServiceWrapperWithPermission();
+                } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    onPermissionDenial();
+                }
+            });
+
+    private void onPermissionDenial() {
+        Toast.makeText(this, "Unable to start due permission denial", Toast.LENGTH_SHORT).show();
+        mIsChecked = false;
+        mToggleButton.setChecked(false);
+    }
+
+    private void startServiceWrapper() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            startServiceWrapperWithPermission();
+            return;
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            startServiceWrapperWithPermission();
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+            onPermissionDenial();
+        } else {
+            mRequestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
+    }
+
+    private void startServiceWrapperWithPermission() {
         Intent intent = new Intent(this, BackgroundViewRenderingService.class);
-        intent.putExtra(BackgroundViewRenderingService.EXTRA_SHOULD_RUN, isChecked);
+        intent.putExtra(BackgroundViewRenderingService.EXTRA_SHOULD_RUN, mIsChecked);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent);
         } else {

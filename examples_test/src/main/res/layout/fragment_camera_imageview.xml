@@ -6,12 +6,12 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/fragment_camera_image"
+        android:id="@+id/fragment_camera_imageview_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="640:480"
+        app:layout_constraintDimensionRatio="4:3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

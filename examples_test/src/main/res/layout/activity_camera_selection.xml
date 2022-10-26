@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CameraSelectionActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        app:title="Select a Camera Example"
+        app:titleTextColor="@android:color/white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/activity_camera_selection_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="
+                    activity_camera_selection_button_1,
+                    activity_camera_selection_button_2,
+                    activity_camera_selection_button_3,
+                    activity_camera_selection_button_4,
+                    activity_camera_selection_button_5"
+                app:flow_horizontalStyle="packed"
+                app:flow_wrapMode="aligned"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/activity_camera_selection_button_1"
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraBitmap"
+                android:text="Camera Image Bitmap" />
+
+            <Button
+                android:id="@+id/activity_camera_selection_button_2"
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraJpeg"
+                android:text="Camera Image Jpeg" />
+
+            <Button
+                android:id="@+id/activity_camera_selection_button_3"
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraSurfaceView"
+                android:text="Camera SurfaceView" />
+
+            <Button
+                android:id="@+id/activity_camera_selection_button_4"
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraTextureView"
+                android:text="Camera TextureView" />
+
+            <Button
+                android:id="@+id/activity_camera_selection_button_5"
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraSnapshot"
+                android:text="Camera Snapshot" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</LinearLayout>

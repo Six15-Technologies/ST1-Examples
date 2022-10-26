@@ -4,11 +4,12 @@ ST1 Examples is an Android Studio project which helps developers quickly integra
 
 For more documentation see https://six15.engineering, and particularly https://six15.engineering/examples
 
-Running these examples require the Six15 service application (either "HMD Service" or "ST1 Connect") to be installed on your device.
+__Running these examples requires the "Six15 ST1" application to be installed on your device.__
 
-The APK for "HMD Service" can be found in our Android SDK release at https://six15.engineering/st1_sdk_overview/#latest-release.
+A APK file can be found as part of our Android SDK release at https://six15.engineering/st1_sdk_overview/#latest-release.
+Or directly downloaded at https://six15.engineering/latest_st1_app
 
-The "Six15 ST1" app is available on the Google Play Store https://play.google.com/store/apps/details?id=com.six15.st1_connect.
+The app is also available on the Google Play Store https://play.google.com/store/apps/details?id=com.six15.st1_connect.
 
 Modules
 ===
@@ -16,7 +17,7 @@ This project is built from 5 modules.
 
 hudservice-aidl
 ---
-This is a trivial Android library module which adds hudservice-aidl.aar to your app. This AAR file defines the AIDL interface and data structures needed to talk to one of Six15's service apps, either "HMD Service" or "Six15 ST1". This AAR file defines the versioned and backward compatible section of the Six15 SDK.
+This is a trivial Android library module which adds hudservice-aidl.aar to your app. This AAR file defines the AIDL interface and data structures needed to talk to the "Six15 ST1" app. This AAR file defines the versioned and backward compatible section of the Six15 SDK.
 
 examples
 ---

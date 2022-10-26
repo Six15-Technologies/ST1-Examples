@@ -24,9 +24,7 @@ package com.six15.examples.helpers;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.RemoteException;
 
@@ -38,25 +36,31 @@ import com.six15.examples.connection.HudServiceConnection;
 import com.six15.hudservice.ByteFrame;
 import com.six15.hudservice.CameraResolution;
 import com.six15.hudservice.IHudService;
+import com.six15.hudservice.ImageFrame;
 
 import java.util.List;
 
 public class HudCameraHelper {
     private static final String TAG = HudCameraHelper.class.getSimpleName();
     private final HudServiceConnection mHudServiceConnectionCamera;
-    private HandlerThread mBitmapHandlerThread;
-    private Handler mBitmapHandler;
+    private final boolean mUseBitmapFormat;
     private IHudService mHmdService;
     private boolean mDeviceConnected;
     private Bitmap mCameraBitmap;
-    private final Handler mHandlerMainHandler;
+    private final Handler mCallbackHandler;
     private final Callbacks mCallbacks;
+    private CameraResolution mSelectedRes;
 
     public static abstract class Callbacks {
-        //If you return true, then you allow any previous bitmap to be recycled.
+        //If you return true, then you allow the previous bitmap to be recycled.
         //This greatly reduces peak memory usage since we can manually free bitmaps
         //without relying on the garbage collector.
-        protected abstract boolean onCameraBitmap(@Nullable Bitmap bitmap);
+        protected boolean onCameraBitmap(@Nullable Bitmap bitmap) {
+            return true;
+        }
+
+        protected void onCameraJpeg(@Nullable byte[] jpeg_byes) {
+        }
 
         @Nullable
         protected CameraResolution getCameraResolution(@NonNull List<CameraResolution> resolutions) {
@@ -66,57 +70,104 @@ public class HudCameraHelper {
             return resolutions.get(0);
         }
 
+        //By default, assume always ready for the camera. So whenever an ST1 connects, the camera should start.
+        //If you ever return false, you can later call HudCameraHelper.startCameraIfReady() to
+        //trigger another call to this function where you can return true.
         protected boolean isReadyForCamera() {
             return true;
         }
+
     }
 
-    public HudCameraHelper(Context context, @NonNull Callbacks callbacks) {
+    //The native format of the camera is JPEG. (it's an MJPEG Camera).
+    //Bitmaps are RGB under the hood, so the service needs to decompress the JPEG before sending it.
+    //The Bitmap class provides an optimized implementation of the Parcelable interface which reduces memory copying when using AIDL based interprocess communication.
+    //This makes transferring Bitmaps very efficient, especially if the image is needed in the Bitmap format for an ImageView or Canvas.
+    //Bitmaps do use more memory that JPEGs since they are larger. To help avoid excessive memory allocation, HudCameraHelper's onCameraBitmap() callback can return a boolean.
+    //If true is returned, HudCameraHelper recycles the previous (not the one just delivered) bitmap. This dramatically reduces peak memory usage when streaming video.
+    public HudCameraHelper(@NonNull Context context, boolean useBitmapFormat, @NonNull Callbacks callbacks) {
+        this(context, useBitmapFormat, callbacks, (Looper) null);
+    }
+
+    public HudCameraHelper(@NonNull Context context, boolean useBitmapFormat, @NonNull Callbacks callbacks, @Nullable Looper callbackLooper) {
+        this(context, useBitmapFormat, callbacks, callbackLooper == null ? null : new Handler(callbackLooper));
+    }
+
+    public HudCameraHelper(@NonNull Context context, boolean useBitmapFormat, @NonNull Callbacks callbacks, @Nullable final Handler callbackHandler) {
         mCallbacks = callbacks;
-        mHandlerMainHandler = new Handler(Looper.getMainLooper());
-        mHudServiceConnectionCamera = new HudServiceConnection(context.getApplicationContext(), mCameraCallbacks);
+        if (callbackHandler == null) {
+            mCallbackHandler = new Handler(Looper.getMainLooper());
+        } else {
+            mCallbackHandler = callbackHandler;
+        }
+        mUseBitmapFormat = useBitmapFormat;
+        mHudServiceConnectionCamera = new HudServiceConnection(context.getApplicationContext(), getHudCallbacks());
     }
 
-    private final HudCallbacks mCameraCallbacks = new HudCallbacks(Looper.getMainLooper()) {
-        @Override
-        public void onServiceConnectionChanged(boolean available, @Nullable IHudService hmdService, @Nullable Intent launchIntentForPermissions) {
-            mHmdService = hmdService;
-        }
-
-        @Override
-        public void onConnected(boolean connected) throws RemoteException {
-            super.onConnected(connected);
-            mDeviceConnected = connected;
-            if (connected) {
-                startCameraIfReady();
-            } else {
-                updateBitmapFromThread(null);
+    private HudCallbacks getHudCallbacks() {
+        return new HudCallbacks(mCallbackHandler) {
+            @Override
+            public void onServiceConnectionChanged(boolean available, @Nullable IHudService hmdService, @Nullable Intent launchIntentForPermissions) {
+                mHmdService = hmdService;
             }
-        }
 
-        @Override
-        public void onJpeg(ByteFrame byteFrame) throws RemoteException {
-            super.onJpeg(byteFrame);
-            if (mBitmapHandler == null) {
-                return;
-            }
-            mBitmapHandler.removeCallbacksAndMessages(null);
-            mBitmapHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    final Bitmap bitmap = BitmapFactory.decodeByteArray(byteFrame.jpgBuffer, 0, byteFrame.jpgBuffer.length);
-                    updateBitmapFromThread(bitmap);
+            @Override
+            public void onConnected(boolean connected) throws RemoteException {
+                super.onConnected(connected);
+                mDeviceConnected = connected;
+                if (connected) {
+                    if (mHmdService != null) {
+                        //Higher 720p video frame rate may be disabled on some devices since old Zebra SDK's / Hardware didn't properly support them.
+                        //Always reset the value to the desired 24 fps. This value is persisted in flash on the ST1 (or HD4000) device.
+                        mHmdService.set720Framerate((byte) 24);
+                    }
+                    startCameraIfReady();
+                } else {
+                    if (mUseBitmapFormat) {
+                        mCallbacks.onCameraBitmap(null);
+                    } else {
+                        mCallbacks.onCameraJpeg(null);
+                    }
                 }
-            });
-        }
-    };
+            }
 
+            @Override
+            public void onJpeg(ByteFrame byteFrame) throws RemoteException {
+                super.onJpeg(byteFrame);
+                if (mUseBitmapFormat) {
+                    //This can happen if multiple HudCameraHelpers are used in the same process, but use different formats.
+                    return;
+                }
+                if (byteFrame == null) {
+                    return;
+                }
+                byte[] bytes = byteFrame.get_byte();
+                if (bytes == null) {
+                    return;
+                }
+                mCallbacks.onCameraJpeg(bytes);
+            }
 
-    public void start() {
-        mBitmapHandlerThread = new HandlerThread(HudCameraHelper.class.getName() + "_BitmapThread");
-        mBitmapHandlerThread.start();
-        mBitmapHandler = new Handler(mBitmapHandlerThread.getLooper());
+            @Override
+            public void onImage(ImageFrame imageFrame) throws RemoteException {
+                super.onImage(imageFrame);
+                if (!mUseBitmapFormat) {
+                    //This can happen if multiple HudCameraHelpers are used in the same process, but use different formats.
+                    return;
+                }
+                if (imageFrame == null) {
+                    return;
+                }
+                Bitmap bitmap = imageFrame.imageBitmap;
+                if (bitmap == null) {
+                    return;
+                }
+                callBitmapCallback(imageFrame.imageBitmap);
+            }
+        };
+    }
+
+    public void connect() {
         mHudServiceConnectionCamera.connectToService();
     }
 
@@ -126,11 +177,14 @@ public class HudCameraHelper {
             try {
                 List<CameraResolution> resolutions = mHmdService.getSupportedCameraResolutions();
                 if (resolutions != null) {
-                    CameraResolution res = mCallbacks.getCameraResolution(resolutions);
-                    if (res != null) {
-                        mHmdService.setCameraResolution(res);
-                        mHmdService.startRawCameraCapture();//Raw capture comes back in onJpeg
-                        //mHmdService.startCameraCapture();//Normal captures comes back in onImage
+                    mSelectedRes = mCallbacks.getCameraResolution(resolutions);
+                    if (mSelectedRes != null) {
+                        mHmdService.setCameraResolution(mSelectedRes);
+                        if (mUseBitmapFormat) {
+                            mHmdService.startCameraCapture();//Normal captures comes back in onImage
+                        } else {
+                            mHmdService.startRawCameraCapture();//Raw capture comes back in onJpeg
+                        }
                         started = true;
                     }
                 }
@@ -151,23 +205,15 @@ public class HudCameraHelper {
         }
     }
 
-    private void updateBitmapFromThread(@Nullable Bitmap bitmap) {
-        mHandlerMainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                boolean canRecycle = mCallbacks.onCameraBitmap(bitmap);
-                if (canRecycle && mCameraBitmap != null && mCameraBitmap != bitmap) {
-                    mCameraBitmap.recycle();
-                }
-                mCameraBitmap = bitmap;
-            }
-        });
+    private void callBitmapCallback(@NonNull Bitmap bitmap) {
+        boolean canRecycle = mCallbacks.onCameraBitmap(bitmap);
+        if (canRecycle && mCameraBitmap != null && mCameraBitmap != bitmap) {
+            mCameraBitmap.recycle();
+        }
+        mCameraBitmap = bitmap;
     }
 
-    public void stop() {
+    public void disconnect() {
         mHudServiceConnectionCamera.disconnectFromService();
-        mBitmapHandler = null;
-        mBitmapHandlerThread.quit();
-        mBitmapHandlerThread = null;
     }
 }

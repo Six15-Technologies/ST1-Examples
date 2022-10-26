@@ -36,8 +36,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.six15.examples.connection.HudCallbacks;
 import com.six15.examples.connection.HudCompatActivity;
-import com.six15.examples_test.camera.CameraActivity;
-import com.six15.examples_test.intent_interface.IntentInterfaceActivity;
 import com.six15.examples_test.presentation.BackgroundPresentingActivity;
 import com.six15.examples_test.presentation.PresentingActivity;
 import com.six15.examples_test.screen_mirroring.ScreenMirroringActivity;
@@ -45,20 +43,19 @@ import com.six15.examples_test.static_image.StaticImageActivity;
 import com.six15.examples_test.view_mirroring.ViewMirroringOnDrawActivity;
 import com.six15.examples_test.view_mirroring.ViewMirroringPixelCopyActivity;
 import com.six15.examples_test.view_rendering.BackgroundViewRenderingActivity;
-import com.six15.examples_test.voice_to_text.VoiceToTextActivity;
 import com.six15.hudservice.IHudService;
 
 public class MainActivity extends HudCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private ViewGroup mGridView;
+    private ViewGroup mParentView;
     private CoordinatorLayout mCoordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mGridView = findViewById(R.id.activity_main_grid);
+        mParentView = findViewById(R.id.activity_main_parent);
         mCoordinatorLayout = findViewById(R.id.activity_main_coordinator);
     }
 
@@ -85,8 +82,8 @@ public class MainActivity extends HudCompatActivity {
     }
 
     private void setAllViewsEnabled(boolean enabled) {
-        for (int i = 0; i < mGridView.getChildCount(); i++) {
-            View child = mGridView.getChildAt(i);
+        for (int i = 0; i < mParentView.getChildCount(); i++) {
+            View child = mParentView.getChildAt(i);
             child.setEnabled(enabled);
         }
     }
@@ -128,7 +125,7 @@ public class MainActivity extends HudCompatActivity {
     }
 
     public void startIntentInterfaceActivity(View view) {
-        startTestActivity(IntentInterfaceActivity.class);
+        startTestActivity(IntentInterfaceSelectionActivity.class);
     }
 
     public void startBackgroundViewRenderingActivity(View view) {
@@ -148,10 +145,6 @@ public class MainActivity extends HudCompatActivity {
     }
 
     public void startCameraActivity(View view) {
-        startTestActivity(CameraActivity.class);
-    }
-
-    public void startVoiceToTextActivity(View view) {
-        startTestActivity(VoiceToTextActivity.class);
+        startTestActivity(CameraSelectionActivity.class);
     }
 }

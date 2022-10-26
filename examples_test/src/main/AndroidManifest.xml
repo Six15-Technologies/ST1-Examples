@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="false"
@@ -34,6 +35,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".CameraSelectionActivity" />
+        <activity android:name=".IntentInterfaceSelectionActivity" />
+
         <activity android:name=".static_image.StaticImageActivity" />
         <activity android:name=".presentation.PresentingActivity" />
         <activity android:name=".presentation.BackgroundPresentingActivity" />
@@ -43,10 +47,24 @@
         <activity android:name=".camera.CameraActivity" />
         <activity android:name=".voice_to_text.VoiceToTextActivity" />
         <activity android:name=".screen_mirroring.ScreenMirroringActivity" />
+
         <activity android:name=".intent_interface.IntentInterfaceActivity" />
+        <activity
+            android:name=".intent_interface.IntentInterfaceDesignerActivity"
+            android:exported="true" />
 
         <service android:name=".presentation.BackgroundPresentingService" />
         <service android:name=".view_rendering.BackgroundViewRenderingService" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
 
     </application>
 

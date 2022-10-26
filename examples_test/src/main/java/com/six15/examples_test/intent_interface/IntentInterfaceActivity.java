@@ -22,10 +22,16 @@
 package com.six15.examples_test.intent_interface;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,14 +42,20 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.six15.examples.HudIntentInterface;
+import com.six15.examples.helpers.HudBitmapHelper;
 import com.six15.examples_test.R;
+import com.six15.hudservice.Constants;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+// In our docs, you'll see references to starting the intent interface with class name "com.six15.intent_interface.IntentInterfaceActivity"
+// This is NOT that activity. They just happen to have the same name.
 public class IntentInterfaceActivity extends AppCompatActivity {
 
     private static final String TAG = IntentInterfaceActivity.class.getSimpleName();
@@ -53,6 +65,9 @@ public class IntentInterfaceActivity extends AppCompatActivity {
     private View mTimeButton;
     private View mPaddingButton;
     private View mGravityButton;
+    private View mImageResourceButton;
+    private View mSendLogoButton;
+
     private Handler mHandler;
     private boolean mRestoringInstanceState = false;
 
@@ -83,22 +98,8 @@ public class IntentInterfaceActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mHandler.removeCallbacksAndMessages(null);
-//                sendExample();
-                Intent intent = new Intent("com.six15.hudservice.ACTION_SEND_TEXT");
-
-                intent.putExtra("text0", "Scan Location");
-                intent.putExtra("bg_color0", "#454e83");
-                intent.putExtra("weight0", "1");
-
-                intent.putExtra("text1", new String[]{"Aisle", "Shelf", "Level"});
-                intent.putExtra("bg_color1", "#20e5ff");
-                intent.putExtra("color1", "BLACK");
-                intent.putExtra("weight1", "1");
-
-                intent.putExtra("text2", new String[]{"M58", "F10", "2"});
-                intent.putExtra("weight2", "2");
-
-                sendBroadcast(intent);
+                sendExample_Hardcoded();
+                //sendExample_UsingConstants();
             }
         });
         mTimeButton = findViewById(R.id.activity_intent_interface_time_button);
@@ -132,11 +133,85 @@ public class IntentInterfaceActivity extends AppCompatActivity {
                 sendGravity();
             }
         });
+        mImageResourceButton = findViewById(R.id.activity_intent_interface_action_send_res);
+        mImageResourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHandler.removeCallbacksAndMessages(null);
+                sendImageResource();
+            }
+        });
+        mSendLogoButton = findViewById(R.id.activity_intent_interface_action_send_content);
+        mSendLogoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHandler.removeCallbacksAndMessages(null);
+                sendSix15Logo();
+            }
+        });
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HudIntentInterface.Response.ACTION_INTENT_SERVICE_STATE);
+
         registerReceiver(mReceiver, intentFilter);
+
         queryIntentInterfaceState();
 
+    }
+
+    private void sendImageResource() {
+        Resources res = getResources();
+        //Any of these work
+        int resId = R.raw.test_image;
+        //int resId = R.mipmap.ic_launcher;
+        //int resId = R.drawable.ic_baseline_stop_circle_24;
+        Uri imageUri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .authority(res.getResourcePackageName(resId))
+                .appendPath(res.getResourceTypeName(resId))
+                .appendPath(res.getResourceEntryName(resId))
+                .build();
+
+        //This does NOT work, since we require a "local uri"
+        //See https://developer.android.com/reference/android/widget/ImageView#setImageURI(android.net.Uri)
+        //Uri imageUri = Uri.parse("https://six15.engineering/_images/st1_product.png");
+
+        //Many other types of URI's will work as well. It's best to stay away from file Uri's.
+
+        HudIntentInterface.sendActionSend(this, imageUri);
+    }
+
+    private void sendSix15Logo() {
+        //Allocate a bitmap. The size doesn't have to match the HUD, but it might as well.
+        Bitmap bitmap = Bitmap.createBitmap(Constants.ST1_HUD_WIDTH, Constants.ST1_HUD_HEIGHT, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.BLACK);
+
+        //Create a canvas which draws on the bitmap
+        Canvas canvas = new Canvas(bitmap);
+
+        //Draw a poor Six15 logo on the canvas
+        Paint paint = new Paint();
+        paint.setStrokeWidth(20);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStyle(Paint.Style.STROKE);
+        float w = Constants.ST1_HUD_WIDTH / 4.0f;
+        float h = Constants.ST1_HUD_HEIGHT / 4.0f;
+        paint.setColor(Color.WHITE);
+        canvas.drawLine(w * 1, h * 1, w * 2, h * 2, paint);
+        canvas.drawLine(w * 2, h * 2, w * 1, h * 3, paint);
+        paint.setColor(getColor(R.color.six15_red));
+        canvas.drawLine(w * 3, h * 1, w * 2, h * 2, paint);
+        canvas.drawLine(w * 2, h * 2, w * 3, h * 3, paint);
+        canvas.drawArc(w * 1.25f, h * 1.25f, w * 2.75f, h * 2.75f, -25, 50, false, paint);
+
+        //Save the bitmap to internal storage, i.e. context.getFilesDir()
+        //The internal storage directory "external_files" is exposed by a content provider. See AndroidManifest.xml and provider_paths.xml
+        String path = HudBitmapHelper.saveBitmapAsJpeg(this, bitmap, 95, "external_files", "six15_logo");
+
+        //Turn our file path into a Uri using our content provider as the authority.
+        File file = new File(path);
+        Uri imageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+
+        HudIntentInterface.sendActionSend(this, imageUri);
     }
 
     private Bundle showInitialImage(Context context) {
@@ -160,7 +235,25 @@ public class IntentInterfaceActivity extends AppCompatActivity {
 
     }
 
-    private void sendExample() {
+    private void sendExample_Hardcoded() {
+        Intent intent = new Intent("com.six15.hudservice.ACTION_SEND_TEXT");
+
+        intent.putExtra("text0", "Scan Location");
+        intent.putExtra("bg_color0", "#454e83");
+        intent.putExtra("weight0", "1");
+
+        intent.putExtra("text1", new String[]{"Aisle", "Shelf", "Level"});
+        intent.putExtra("bg_color1", "#20e5ff");
+        intent.putExtra("color1", "BLACK");
+        intent.putExtra("weight1", "1");
+
+        intent.putExtra("text2", new String[]{"M58", "F10", "2"});
+        intent.putExtra("weight2", "2");
+
+        sendBroadcast(intent);
+    }
+
+    private void sendExample_UsingConstants() {
         Bundle args = new Bundle();
 
         args.putString(HudIntentInterface.EXTRA_SEND_TEXT_TEXT_N + "0", "Scan Location");
@@ -254,6 +347,8 @@ public class IntentInterfaceActivity extends AppCompatActivity {
         mTimeButton.setEnabled(mIntentInterfaceEnabled);
         mPaddingButton.setEnabled(mIntentInterfaceEnabled);
         mGravityButton.setEnabled(mIntentInterfaceEnabled);
+        mImageResourceButton.setEnabled(mIntentInterfaceEnabled);
+        mSendLogoButton.setEnabled(mIntentInterfaceEnabled);
     }
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {

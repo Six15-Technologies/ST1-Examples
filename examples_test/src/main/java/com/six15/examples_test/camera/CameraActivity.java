@@ -22,18 +22,32 @@
 package com.six15.examples_test.camera;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.RemoteException;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.six15.examples.connection.HudCallbacks;
+import com.six15.examples.connection.HudCompatActivity;
 import com.six15.examples_test.R;
+import com.six15.hudservice.IHudService;
 
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends HudCompatActivity {
+    public static final String ARG_USE_WHICH_FRAGMENT = "ARG_USE_WHICH_FRAGMENT";
+    public static final int WHICH_FRAGMENT_BITMAP = 0;
+    public static final int WHICH_FRAGMENT_JPEG = 1;
+    public static final int WHICH_FRAGMENT_SURFACE_VIEW = 2;
+    public static final int WHICH_FRAGMENT_TEXTURE_VIEW = 3;
+    public static final int WHICH_FRAGMENT_SNAPSHOT = 4;
+
     private static final int REQUEST_CODE_ALL_PERMISSION = 2;
     private boolean mNeedsToCreateFragment;
 
@@ -56,16 +70,64 @@ public class CameraActivity extends AppCompatActivity {
                 if (mNeedsToCreateFragment) {
                     FragmentManager fm = getSupportFragmentManager();
                     FragmentTransaction ft = fm.beginTransaction();
-                    //Using a fragment does 2 things for us here.
+
+                    //Using a fragment does 3 things for us here.
                     //1: Makes an easy to way to delay until permissions are accepted
-                    //2: Makes it easy to persist across configuration changes with setRetainInstance(true)
-                    Fragment fragment = new CameraFragment();
-                    ft.add(R.id.activity_fragment_holder, fragment);
+                    //2: Allows permission code to be shared between camera examples.
+                    //3: Makes it easy to persist across configuration changes with setRetainInstance(true)
+                    Intent intent = getIntent();
+                    if (intent == null) {
+                        return;
+                    }
+                    int whichFragment = intent.getIntExtra(ARG_USE_WHICH_FRAGMENT, WHICH_FRAGMENT_BITMAP);
+                    Class<? extends Fragment> fragmentClass;
+                    switch (whichFragment) {
+                        case WHICH_FRAGMENT_BITMAP:
+                            fragmentClass = CameraBitmapFragment.class;
+                            break;
+                        case WHICH_FRAGMENT_JPEG:
+                            fragmentClass = CameraJpegFragment.class;
+                            break;
+                        case WHICH_FRAGMENT_SNAPSHOT:
+                            fragmentClass = CameraWithSnapshotFragment.class;
+                            break;
+                        case WHICH_FRAGMENT_SURFACE_VIEW:
+                            fragmentClass = CameraSurfaceViewFragment.class;
+                            break;
+                        case WHICH_FRAGMENT_TEXTURE_VIEW:
+                            fragmentClass = CameraTextureViewFragment.class;
+                            break;
+                        default:
+                            throw new RuntimeException("Unexpected fragment type:" + whichFragment);
+                    }
+                    ft.add(R.id.activity_fragment_holder, fragmentClass, null);
                     ft.commit();
                 }
             } else {
                 finish();
             }
         }
+    }
+
+    @NonNull
+    @Override
+    protected HudCallbacks getCallbacks() {
+        return new HudCallbacks(Looper.getMainLooper()) {
+            IHudService mHmdService;
+
+            @Override
+            public void onServiceConnectionChanged(boolean available, @Nullable IHudService hmdService, @Nullable Intent launchIntentForPermissions) {
+                mHmdService = hmdService;
+            }
+
+            @Override
+            public void onConnected(boolean connected) throws RemoteException {
+                if (connected && mHmdService != null) {
+                    if (!mHmdService.hasCamera()) {
+                        Toast.makeText(CameraActivity.this, "The attached device does not have a camera.", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        };
     }
 }

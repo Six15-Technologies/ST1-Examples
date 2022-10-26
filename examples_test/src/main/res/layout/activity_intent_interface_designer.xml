@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/activity_intent_interface_designer_frag"
+    android:name="com.six15.examples_test.intent_interface.IntentInterfaceDesignerFragment"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:layout="@layout/fragment_intent_interface_designer"
+    android:layout_height="match_parent">
+
+</androidx.fragment.app.FragmentContainerView>

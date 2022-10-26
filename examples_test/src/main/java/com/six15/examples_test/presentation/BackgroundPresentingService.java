@@ -30,15 +30,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.view.Display;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.six15.examples.connection.HudCallbacks;
 import com.six15.examples.HudPresentingService;
+import com.six15.examples.connection.HudCallbacks;
 import com.six15.examples_test.R;
 import com.six15.hudservice.IHudService;
 
@@ -96,6 +95,7 @@ public class BackgroundPresentingService extends HudPresentingService {
                 .setSmallIcon(R.drawable.ic_baseline_stop_circle_24)
                 .setTicker("Running in Background")
                 .addAction(R.drawable.ic_baseline_stop_circle_24, "Stop Service", stopServiceIntent)
+                .setOngoing(true)
                 .build();
 
         startForeground(1, notification);

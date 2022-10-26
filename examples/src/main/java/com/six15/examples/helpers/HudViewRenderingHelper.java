@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 
@@ -47,8 +48,8 @@ public class HudViewRenderingHelper {
 
     private static final String TAG = HudViewRenderingHelper.class.getSimpleName();
     private final View mView;
-    private final Canvas mDrawingCanvas;
-    private final Bitmap mDrawingBitmap;
+    private Canvas mDrawingCanvas;
+    private Bitmap mDrawingBitmap;
     private final Handler mHandler;
     private final LayoutInflater mLayoutInflater;
     private final Callbacks mCallbacks;
@@ -59,17 +60,13 @@ public class HudViewRenderingHelper {
     //This is a bit slower than 30fps. Less frames are dropped slightly slower which looks smoother.
     private static final int DESIRED_FRAME_TIME_MS = 35;
     private int mJpegQuality = 95;
-
+    private int mImageScale = 1;
 
     public HudViewRenderingHelper(Context context, @LayoutRes int layout, @StyleRes int theme, @Nullable Callbacks callback) {
         mCallbacks = callback;
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        mDrawingBitmap = Bitmap.createBitmap(Constants.ST1_HUD_WIDTH, Constants.ST1_HUD_HEIGHT, conf);
-        mDrawingBitmap.eraseColor(Color.BLACK);
-        mDrawingCanvas = new Canvas(mDrawingBitmap);
+        setupDrawing(mImageScale);
         mJpegFrame = new ByteFrame();
         mByteOutput = new ByteArrayOutputStream();
-
         mHandler = new Handler(Looper.getMainLooper());
 
         Configuration hudConfig = new Configuration(context.getResources().getConfiguration());
@@ -89,15 +86,29 @@ public class HudViewRenderingHelper {
         mJpegQuality = jpegQuality;
     }
 
+    private void setupDrawing(int scale) {
+        mImageScale = scale;
+        mDrawingBitmap = Bitmap.createBitmap(Constants.ST1_HUD_WIDTH * mImageScale, Constants.ST1_HUD_HEIGHT * mImageScale, Bitmap.Config.ARGB_8888);
+        mDrawingBitmap.eraseColor(Color.BLACK);
+        mDrawingCanvas = new Canvas(mDrawingBitmap);
+    }
+
+    public void setImageScale(int scale) {
+        setupDrawing(scale);
+        triggerLayout();
+    }
+
     public interface Callbacks {
         void onDraw(Bitmap bitmap, ByteFrame jpegBytes);
     }
 
     public void triggerLayout() {
-        int measuredWidth = View.MeasureSpec.makeMeasureSpec(Constants.ST1_HUD_WIDTH, View.MeasureSpec.EXACTLY);
-        int measuredHeight = View.MeasureSpec.makeMeasureSpec(Constants.ST1_HUD_HEIGHT, View.MeasureSpec.EXACTLY);
+        int width = Constants.ST1_HUD_WIDTH * mImageScale;
+        int height = Constants.ST1_HUD_HEIGHT * mImageScale;
+        int measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+        int measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
         mView.measure(measuredWidth, measuredHeight);
-        mView.layout(0, 0, Constants.ST1_HUD_WIDTH, Constants.ST1_HUD_HEIGHT);
+        mView.layout(0, 0, width, height);
     }
 
     public View inflateView(@LayoutRes int layout, ViewGroup parent, boolean attachToRoot) {
@@ -118,10 +129,19 @@ public class HudViewRenderingHelper {
         }
     }
 
-    private void drawInternal(IHudService hudService) {
+    protected void drawInternal(IHudService hudService) {
         mDrawingBitmap.eraseColor(Color.BLACK);
         mView.draw(mDrawingCanvas);
-        mDrawingBitmap.compress(Bitmap.CompressFormat.JPEG, mJpegQuality, mByteOutput);
+        boolean recycleAfter;
+        Bitmap hudBitmap;
+        if (mImageScale != 1) {
+            hudBitmap = Bitmap.createScaledBitmap(mDrawingBitmap, Constants.ST1_HUD_WIDTH, Constants.ST1_HUD_HEIGHT, true);
+            recycleAfter = true;
+        } else {
+            hudBitmap = mDrawingBitmap;
+            recycleAfter = false;
+        }
+        hudBitmap.compress(Bitmap.CompressFormat.JPEG, mJpegQuality, mByteOutput);
         mJpegFrame.set_byte(mByteOutput.toByteArray());
         mByteOutput.reset();
         if (hudService != null) {
@@ -132,8 +152,12 @@ public class HudViewRenderingHelper {
             }
         }
         if (mCallbacks != null) {
-            mCallbacks.onDraw(mDrawingBitmap, mJpegFrame);
+            mCallbacks.onDraw(hudBitmap, mJpegFrame);
         }
+        if (recycleAfter) {
+            hudBitmap.recycle();
+        }
+
     }
 
     public void setAutoDraw(boolean autoDraw, IHudService hudService) {

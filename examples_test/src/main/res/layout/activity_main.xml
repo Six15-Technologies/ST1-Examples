@@ -24,63 +24,90 @@
         android:layout_gravity="fill_vertical"
         android:orientation="vertical">
 
-        <GridLayout
-            android:id="@+id/activity_main_grid"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:columnCount="2">
+            android:fillViewport="true">
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startStaticImageActivity"
-                android:text="Static Image Activity" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/activity_main_parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:ignore="MissingConstraints">
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startScreenMirroringActivity"
-                android:text="Screen Mirroring Activity" />
+                <androidx.constraintlayout.helper.widget.Flow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="
+                    activity_main_button_1,
+                    activity_main_button_2,
+                    activity_main_button_3,
+                    activity_main_button_4,
+                    activity_main_button_5,
+                    activity_main_button_6,
+                    activity_main_button_7,
+                    activity_main_button_8,
+                    activity_main_button_9"
+                    app:flow_horizontalStyle="packed"
+                    app:flow_wrapMode="aligned"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startPresentingActivity"
-                android:text="Presenting Activity" />
+                <Button
+                    android:id="@+id/activity_main_button_1"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startStaticImageActivity"
+                    android:text="Static Image" />
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startBackgroundPresentingActivity"
-                android:text="Background Presenting Activity" />
+                <Button
+                    android:id="@+id/activity_main_button_2"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startScreenMirroringActivity"
+                    android:text="Screen Mirroring" />
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startIntentInterfaceActivity"
-                android:text="Intent Interface Activity" />
+                <Button
+                    android:id="@+id/activity_main_button_3"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startPresentingActivity"
+                    android:text="Presenting" />
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startBackgroundViewRenderingActivity"
-                android:text="Background View Rendering Activity" />
+                <Button
+                    android:id="@+id/activity_main_button_4"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startBackgroundPresentingActivity"
+                    android:text="Background Presenting" />
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startViewMirroringOnDrawActivity"
-                android:text="View Mirroring OnDraw Activity" />
+                <Button
+                    android:id="@+id/activity_main_button_5"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startIntentInterfaceActivity"
+                    android:text="Intent Interface" />
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startViewMirroringPixelCopyActivity"
-                android:text="View Mirroring PixelCopy Activity" />
+                <Button
+                    android:id="@+id/activity_main_button_6"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startBackgroundViewRenderingActivity"
+                    android:text="Background View Rendering" />
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startCameraActivity"
-                android:text="Camera Activity" />
+                <Button
+                    android:id="@+id/activity_main_button_7"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startViewMirroringOnDrawActivity"
+                    android:text="View Mirroring OnDraw" />
 
-            <Button
-                style="@style/activity_main_button_style"
-                android:onClick="startVoiceToTextActivity"
-                android:text="Voice To Text Activity" />
+                <Button
+                    android:id="@+id/activity_main_button_8"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startViewMirroringPixelCopyActivity"
+                    android:text="View Mirroring PixelCopy" />
 
+                <Button
+                    android:id="@+id/activity_main_button_9"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startCameraActivity"
+                    android:text="Camera" />
 
-        </GridLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

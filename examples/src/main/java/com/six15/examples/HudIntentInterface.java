@@ -22,11 +22,13 @@
 package com.six15.examples;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -56,6 +58,7 @@ public class HudIntentInterface {
     public static final String EXTRA_SEND_TEXT_PADDING_VERTICAL_N = "padding_vertical";
     public static final String EXTRA_SEND_TEXT_GRAVITY_N = "gravity";
     public static final String EXTRA_SEND_TEXT_WEIGHT_N = "weight";
+    public static final String EXTRA_SEND_TEXT_MAX_LINES_N = "max_lines";
 
     public static final String ACTION_CLEAR_DISPLAY = "com.six15.hudservice.ACTION_CLEAR_DISPLAY";
 
@@ -119,13 +122,13 @@ public class HudIntentInterface {
                 }
             }
         }
-        if (resolveInfo.size() > 0){
+        if (resolveInfo.size() > 0) {
             return resolveInfo.get(0);
         }
         return null;
     }
 
-    //Color.parseColor(String) can take String "#rrggbb" or "#aaffrrbb" since it can check for 6 or 8 digits.
+    //Color.parseColor(String) can take String "#rrggbb" or "#aarrggbb" since it can check for 6 or 8 digits.
     //To go the other direction HudIntentInterface.colorToString(int) takes an int, but and can't differentiate values with or without alpha.
     //Therefore the int passed to colorToString MUST contain alpha.
     public static String colorToString(@ColorInt int color_with_alpha) {
@@ -138,7 +141,34 @@ public class HudIntentInterface {
         context.sendBroadcast(intent);
     }
 
+    public static void clearDisplay(Context context) {
+        context.sendBroadcast(new Intent(HudIntentInterface.ACTION_CLEAR_DISPLAY));
+    }
+
     public static void stopIntentInterface(Context context) {
         context.sendBroadcast(new Intent(HudIntentInterface.ACTION_STOP_INTENT_SERVICE));
+    }
+
+    public static void sendActionSend(Context context, Uri uri) {
+        //Needs queries
+        ResolveInfo resolveInfo = findFirstMatchingActivity(context);
+
+        if (resolveInfo == null) {
+            Log.w(TAG, "sendActionSend: Could not find Intent Interface.");
+            return;
+        }
+        String packageName = resolveInfo.activityInfo.packageName;
+        String className = resolveInfo.activityInfo.name;
+        ComponentName component = new ComponentName(packageName, className);
+
+        Intent explicitIntent = new Intent(Intent.ACTION_SEND);
+
+        // Set the component to be explicit
+        explicitIntent.setComponent(component);
+        explicitIntent.setType("image/*");//Android 13 requires this
+        explicitIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        explicitIntent.setClipData(ClipData.newUri(context.getContentResolver(), null, uri));
+        explicitIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(explicitIntent);
     }
 }

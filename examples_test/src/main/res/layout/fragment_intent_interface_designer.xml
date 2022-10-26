@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/fragment_intent_interface_designer_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/six15_red"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="Intent Interface Designer" />
+
+    <ToggleButton
+        android:id="@+id/fragment_intent_interface_designer_toggle_button"
+        style="@style/activity_main_button_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="50dp"
+        android:paddingVertical="30dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_intent_interface_designer_toolbar" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_intent_interface_designer_frame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="10dp"
+        android:background="@android:color/black"
+        app:layout_constraintBottom_toTopOf="@id/fragment_intent_interface_designer_send"
+        app:layout_constraintDimensionRatio="640:400"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_intent_interface_designer_toggle_button">
+
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/fragment_intent_interface_designer_frame_title"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="#0000ff"
+            android:gravity="center"
+            android:hint="Title"
+            android:inputType="textCapWords"
+            android:paddingHorizontal="20dp"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/darker_gray"
+            app:layout_constraintHeight_percent="0.25"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0"
+            tools:text="Title" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/fragment_intent_interface_designer_frame_body1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:hint="Body 1"
+            android:inputType="textCapWords"
+            android:paddingHorizontal="20dp"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/darker_gray"
+            app:layout_constraintHeight_percent="0.375"
+            app:layout_constraintTop_toBottomOf="@id/fragment_intent_interface_designer_frame_title"
+            tools:text="Body" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/fragment_intent_interface_designer_frame_body2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:hint="Body 2"
+            android:inputType="textCapWords"
+            android:paddingHorizontal="20dp"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHeight_percent="0.375"
+            app:layout_constraintTop_toBottomOf="@id/fragment_intent_interface_designer_frame_body1" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <Button
+        android:id="@+id/fragment_intent_interface_designer_send"
+        style="@style/activity_main_button_style"
+        android:text="Send To HUD"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

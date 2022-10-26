@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,62 +14,73 @@
         android:paddingHorizontal="50dp"
         android:paddingVertical="30dp" />
 
-    <GridLayout
-        android:id="@+id/activity_main_grid"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/activity_intent_interface_grid"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_gravity="bottom|center_horizontal"
-        android:columnCount="2">
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        tools:ignore="MissingConstraints">
+
+        <androidx.constraintlayout.helper.widget.Flow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="
+            activity_intent_interface_example_button,
+            activity_intent_interface_time_button,
+            activity_intent_interface_padding_button,
+            activity_intent_interface_gravity_button,
+            activity_intent_interface_action_send_res,
+            activity_intent_interface_action_send_content"
+            app:flow_horizontalStyle="packed"
+            app:flow_wrapMode="aligned"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/activity_intent_interface_example_button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
+            style="@style/activity_main_button_style"
             android:enabled="false"
-            android:paddingHorizontal="50dp"
-            android:paddingVertical="30dp"
-            android:text="Send Example"
+            android:text="Send Text Example"
+            app:layout_constraintWidth_percent="0.5"
             tools:enabled="true" />
 
         <Button
             android:id="@+id/activity_intent_interface_time_button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
+            style="@style/activity_main_button_style"
             android:enabled="false"
-            android:paddingHorizontal="50dp"
-            android:paddingVertical="30dp"
             android:text="Loop Time"
+            app:layout_constraintWidth_percent="0.5"
             tools:enabled="true" />
 
         <Button
             android:id="@+id/activity_intent_interface_padding_button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
+            style="@style/activity_main_button_style"
             android:enabled="false"
-            android:paddingHorizontal="50dp"
-            android:paddingVertical="30dp"
             android:text="Send Padding"
+            app:layout_constraintWidth_percent="0.5"
             tools:enabled="true" />
 
         <Button
             android:id="@+id/activity_intent_interface_gravity_button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
+            style="@style/activity_main_button_style"
             android:enabled="false"
-            android:paddingHorizontal="50dp"
-            android:paddingVertical="30dp"
             android:text="Send Gravity"
+            app:layout_constraintWidth_percent="0.5"
             tools:enabled="true" />
 
+        <Button
+            android:id="@+id/activity_intent_interface_action_send_res"
+            style="@style/activity_main_button_style"
+            android:text="Send Image Resource"
+            app:layout_constraintWidth_percent="0.5"
+            tools:enabled="true" />
 
-    </GridLayout>
+        <Button
+            android:id="@+id/activity_intent_interface_action_send_content"
+            style="@style/activity_main_button_style"
+            android:text="Send Image Content Provider"
+            app:layout_constraintWidth_percent="0.5"
+            tools:enabled="true" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
