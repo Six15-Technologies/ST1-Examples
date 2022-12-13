@@ -137,7 +137,17 @@ public class HudBitmapHelper {
     }
 
     public static String saveBitmapAsJpeg(Context context, Bitmap bmp, int jpegQuality, String folder, String name) {
-        String path = context.getFilesDir().getPath() + File.separator + folder + File.separator + name + ".jpg";
+        return saveBitmapAsJpeg(context, bmp, jpegQuality, folder, name, false);
+    }
+    public static String saveBitmapAsJpeg(Context context, Bitmap bmp, int jpegQuality, String folder, String name, boolean prefer_external) {
+        File baseDir = null;
+        if (prefer_external) {
+            baseDir = context.getExternalFilesDir(null);
+        }
+        if (baseDir == null){
+            baseDir = context.getFilesDir();
+        }
+        String path = baseDir.getPath() + File.separator + folder + File.separator + name + ".jpg";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, jpegQuality, baos);
 
