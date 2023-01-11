@@ -42,6 +42,7 @@ import com.six15.examples.connection.HudCallbacks;
 import com.six15.examples.connection.HudService;
 import com.six15.examples.helpers.HudViewRenderingHelper;
 import com.six15.examples_test.R;
+import com.six15.examples_test.ServiceIDs;
 import com.six15.hudservice.IHudService;
 
 public class BackgroundViewRenderingService extends HudService {
@@ -93,7 +94,7 @@ public class BackgroundViewRenderingService extends HudService {
                 .addAction(R.drawable.ic_baseline_stop_circle_24, "Stop Service", stopServiceIntent)
                 .build();
 
-        startForeground(2, notification);
+        startForeground(ServiceIDs.BACKGROUND_VIEW_RENDERING_SERVICE, notification);
     }
 
     @Override
@@ -120,9 +121,9 @@ public class BackgroundViewRenderingService extends HudService {
         if (mViewRenderingHelper != null) {
             return;
         }
-        mViewRenderingHelper = new HudViewRenderingHelper(this, R.layout.example_hud_view, R.style.Theme_HUD, null);
+        mViewRenderingHelper = new HudViewRenderingHelper(this, R.layout.hud_webview, R.style.Theme_HUD, null);
         View rootView = mViewRenderingHelper.getView();
-        WebView webView = rootView.findViewById(R.id.example_hud_view_web);
+        WebView webView = rootView.findViewById(R.id.hud_webview_web);
         webView.setInitialScale(100);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.loadUrl("https://time.is/");
