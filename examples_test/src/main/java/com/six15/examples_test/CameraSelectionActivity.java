@@ -63,4 +63,7 @@ public class CameraSelectionActivity extends AppCompatActivity {
     public void startCameraSnapshot(View view) {
         startCameraActivity(CameraActivity.WHICH_FRAGMENT_SNAPSHOT);
     }
+    public void startCameraScandit(View view) {
+        startCameraActivity(CameraActivity.WHICH_FRAGMENT_SCANDIT);
+    }
 }

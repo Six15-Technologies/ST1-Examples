@@ -2,16 +2,20 @@ plugins {
     id 'com.android.application'
 }
 
+Properties local_properties = new Properties()
+local_properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     compileSdkVersion 33
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.six15.examples_test"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"
+        buildConfigField "String", "SCANDIT_LICENSE_KEY", "\"" + local_properties.getProperty("SCANDIT_LICENSE_KEY") + "\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,6 +54,9 @@ android {
 }
 
 dependencies {
+
+    api "com.scandit.datacapture:core:6.16.0"
+    api "com.scandit.datacapture:barcode:6.16.0"
 
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'

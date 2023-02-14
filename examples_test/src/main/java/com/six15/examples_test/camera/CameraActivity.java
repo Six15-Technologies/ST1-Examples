@@ -47,6 +47,7 @@ public class CameraActivity extends HudCompatActivity {
     public static final int WHICH_FRAGMENT_SURFACE_VIEW = 2;
     public static final int WHICH_FRAGMENT_TEXTURE_VIEW = 3;
     public static final int WHICH_FRAGMENT_SNAPSHOT = 4;
+    public static final int WHICH_FRAGMENT_SCANDIT = 5;
 
     private static final int REQUEST_CODE_ALL_PERMISSION = 2;
     private boolean mNeedsToCreateFragment;
@@ -96,6 +97,9 @@ public class CameraActivity extends HudCompatActivity {
                             break;
                         case WHICH_FRAGMENT_TEXTURE_VIEW:
                             fragmentClass = CameraTextureViewFragment.class;
+                            break;
+                        case WHICH_FRAGMENT_SCANDIT:
+                            fragmentClass = CameraScanditFragment.class;
                             break;
                         default:
                             throw new RuntimeException("Unexpected fragment type:" + whichFragment);
