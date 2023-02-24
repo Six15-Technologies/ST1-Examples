@@ -92,6 +92,7 @@ public class HudIntentInterface {
         if (args != null) {
             explicitIntent.putExtras(args);
         }
+        explicitIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         //Android 11 blocks apps (even foreground ones) from starting service's in apps which are not running.
         //The activity that is started will simply forward our request to the service while starting it, then close itself.
         //The activity is themed to be transparent.

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CameraSelectionActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        app:title="Select a View Rendering Example"
+        app:titleTextColor="@android:color/white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/activity_view_mirroring_and_rendering_selection_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="
+                    activity_view_mirroring_and_rendering_selection_button_1,
+                    activity_view_mirroring_and_rendering_selection_button_2,
+                    activity_view_mirroring_and_rendering_selection_button_3,
+                    activity_view_mirroring_and_rendering_selection_button_4,
+                    activity_view_mirroring_and_rendering_selection_button_5"
+                app:flow_horizontalStyle="packed"
+                app:flow_wrapMode="aligned"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <Button
+                android:id="@+id/activity_view_mirroring_and_rendering_selection_button_1"
+                style="@style/activity_main_button_style"
+                android:onClick="startViewMirroringOnDraw"
+                android:text="View Mirroring OnDraw" />
+
+            <Button
+                android:id="@+id/activity_view_mirroring_and_rendering_selection_button_2"
+                style="@style/activity_main_button_style"
+                android:onClick="startViewMirroringPixelCopy"
+                android:text="View Mirroring PixelCopy" />
+
+            <Button
+                android:id="@+id/activity_view_mirroring_and_rendering_selection_button_3"
+                style="@style/activity_main_button_style"
+                android:onClick="startBackgroundViewRendering"
+                android:text="Background View Rendering" />
+
+            <Button
+                android:id="@+id/activity_view_mirroring_and_rendering_selection_button_4"
+                style="@style/activity_main_button_style"
+                android:onClick="startForegroundSurfaceViewRendering"
+                android:text="Foreground SurfaceView Rendering" />
+
+            <Button
+                android:id="@+id/activity_view_mirroring_and_rendering_selection_button_5"
+                style="@style/activity_main_button_style"
+                android:onClick="startBackgroundSurfaceViewRendering"
+                android:text="Background SurfaceView Rendering" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</LinearLayout>

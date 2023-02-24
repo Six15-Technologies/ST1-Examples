@@ -50,6 +50,10 @@ public class HudCameraHelper {
     private final Handler mCallbackHandler;
     private final Callbacks mCallbacks;
     private CameraResolution mSelectedRes;
+    @Nullable
+    private Boolean mAutoFocusRequestedState = null;
+    @Nullable
+    private Boolean mAutoFocusCurrentState = null;
 
     public static abstract class Callbacks {
         //If you return true, then you allow the previous bitmap to be recycled.
@@ -104,6 +108,17 @@ public class HudCameraHelper {
         mHudServiceConnectionCamera = new HudServiceConnection(context.getApplicationContext(), getHudCallbacks());
     }
 
+    public void requestAutoFocusEnabled(boolean enabled) {
+        mAutoFocusRequestedState = enabled;
+    }
+
+    public boolean getAutoFocusEnabled() {
+        if (mAutoFocusCurrentState == null) {
+            return false;
+        }
+        return mAutoFocusCurrentState;
+    }
+
     private HudCallbacks getHudCallbacks() {
         return new HudCallbacks(mCallbackHandler) {
             @Override
@@ -123,6 +138,7 @@ public class HudCameraHelper {
                     }
                     startCameraIfReady();
                 } else {
+                    mAutoFocusCurrentState = null;
                     if (mUseBitmapFormat) {
                         mCallbacks.onCameraBitmap(null);
                     } else {
@@ -145,6 +161,7 @@ public class HudCameraHelper {
                 if (bytes == null) {
                     return;
                 }
+                updateAutoFocusModeIfNeeded();
                 mCallbacks.onCameraJpeg(bytes);
             }
 
@@ -162,9 +179,27 @@ public class HudCameraHelper {
                 if (bitmap == null) {
                     return;
                 }
+                updateAutoFocusModeIfNeeded();
                 callBitmapCallback(imageFrame.imageBitmap);
             }
         };
+    }
+
+    private void updateAutoFocusModeIfNeeded() {
+        if (mHmdService == null || !mDeviceConnected) {
+            return;
+        }
+        if (mAutoFocusRequestedState == null) {
+            return;
+        }
+        if (!mAutoFocusRequestedState.equals(mAutoFocusCurrentState)) {
+            try {
+                mHmdService.setCameraAutofocusMode(mAutoFocusRequestedState);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            mAutoFocusCurrentState = mAutoFocusRequestedState;
+        }
     }
 
     public void connect() {
@@ -198,6 +233,7 @@ public class HudCameraHelper {
     public void stopCamera() {
         if (mHmdService != null && mDeviceConnected) {
             try {
+                mAutoFocusCurrentState = null;
                 mHmdService.stopCamera();
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -214,6 +250,7 @@ public class HudCameraHelper {
     }
 
     public void disconnect() {
+        mAutoFocusCurrentState = null;
         mHudServiceConnectionCamera.disconnectFromService();
     }
 }

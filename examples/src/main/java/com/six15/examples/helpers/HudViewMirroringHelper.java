@@ -29,7 +29,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -63,6 +62,7 @@ public class HudViewMirroringHelper {
     private final View mView;
     private final Paint mDrawingPaint;
     private final boolean mUsePixelCopy;
+    private final LayeredPixelCopy mLayeredPixelCopy;
     private Bitmap mDrawingBitmap;
     private final ByteFrame mJpegFrame;
     private final ByteArrayOutputStream mByteOutput;
@@ -93,6 +93,11 @@ public class HudViewMirroringHelper {
         mByteOutput = new ByteArrayOutputStream();
         mMainHandler = new Handler(Looper.getMainLooper());
         mDrawingPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mLayeredPixelCopy = new LayeredPixelCopy();
+        } else {
+            mLayeredPixelCopy = null;
+        }
         view.addOnAttachStateChangeListener(mOnAttachStateChangeListener);
     }
 
@@ -184,8 +189,8 @@ public class HudViewMirroringHelper {
                 mBackgroundHandler.post(mDrawBackgroundRunnable);
             }
         } else {
-            Rect size = updateDrawingBitmapIfNeeded();
-            if (size != null) {
+            boolean ready = updateDrawingBitmapIfNeeded();
+            if (ready) {
                 mDrawingCanvas.drawColor(Color.BLACK);
                 mView.draw(mDrawingCanvas);
                 if (mAllowRendering && mIsEnabled) {
@@ -195,14 +200,25 @@ public class HudViewMirroringHelper {
         }
     }
 
+    private static final int DESIRED_FRAME_TIME_MS = 35;
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private final Runnable mDrawBackgroundRunnable = new Runnable() {
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void run() {
             if (mBackgroundHandler != null) {
+                long timeStart = System.nanoTime() / 1000000L;
                 mBackgroundHandler.removeCallbacks(this);
-                triggerPixelCopy();
+                boolean immediately_redraw = triggerPixelCopy();
+                if (immediately_redraw && mAllowRendering && mIsEnabled) {
+                    long timeNow = System.nanoTime() / 1000000L;
+                    long timeDiff = timeNow - timeStart;
+//                        Log.d(TAG, "run: timeDiff:" + timeDiff);
+                    long delay = Math.min(Math.max(DESIRED_FRAME_TIME_MS - timeDiff, 0), DESIRED_FRAME_TIME_MS);
+//                        Log.d(TAG, "run() using delay:" + delay);
+                    mBackgroundHandler.postDelayed(this, delay);
+                }
             }
         }
     };
@@ -231,25 +247,19 @@ public class HudViewMirroringHelper {
     };
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void triggerPixelCopy() {
-
-        Activity activity = tryToGetActivity(mView.getContext());
-        if (activity == null) {
-            Log.i(TAG, "triggerPixelCopy: Can't find activity");
-            return;
-        }
+    private boolean triggerPixelCopy() {
         if (mHmdService == null) {
-            return;
+            return false;
         }
-
-        Rect rect = updateDrawingBitmapIfNeeded();
-        if (rect == null) {
-            return;
+        boolean ready = updateDrawingBitmapIfNeeded();
+        if (!ready) {
+            return false;
         }
-        Log.i(TAG, "triggerPixelCopy: Starting pixel draw: w:" + rect.width() + " h:" + rect.height());
+        boolean immediately_redraw = false;
+//        Log.i(TAG, "triggerPixelCopy: Starting pixel draw: w:" + rect.width() + " h:" + rect.height());
         if (mUsePixelCopy) {
             try {
-                PixelCopy.request(activity.getWindow(), rect, mDrawingBitmap, new PixelCopy.OnPixelCopyFinishedListener() {
+                PixelCopy.OnPixelCopyFinishedListener listener = new PixelCopy.OnPixelCopyFinishedListener() {
                     @Override
                     public void onPixelCopyFinished(int copyResult) {
                         if (copyResult == PixelCopy.SUCCESS) {
@@ -266,28 +276,29 @@ public class HudViewMirroringHelper {
                         }
 //                        Log.i(TAG, "onPixelCopyFinished: Pixel copy and draw complete");
                     }
-                }, mBackgroundHandler);
+                };
+                immediately_redraw = mLayeredPixelCopy.request(mView, mDrawingBitmap, listener, mBackgroundHandler);
             } catch (IllegalArgumentException e) {
                 //We don't care about "Window doesn't have a backing surface!", we'll just ignore this draw.
                 //As far as I can tell, there is no way to check for this beforehand.
                 //This can also happen if the view hasn't drawn yet.
             }
         }
+        return immediately_redraw;
     }
 
-    private Rect updateDrawingBitmapIfNeeded() {
-        int[] loc_xy = new int[2];
-        mView.getLocationInWindow(loc_xy);
-        Rect rect = new Rect(loc_xy[0], loc_xy[1], loc_xy[0] + mView.getWidth(), loc_xy[1] + mView.getHeight());
-        if (rect.height() == 0 || rect.width() == 0) {
-            return null;
+    private boolean updateDrawingBitmapIfNeeded() {
+        int width = mView.getWidth();
+        int height = mView.getHeight();
+        if (height == 0 || width == 0) {
+            return false;
         }
-        if (mDrawingBitmap == null || mDrawingBitmap.getWidth() != rect.width() || mDrawingBitmap.getHeight() != rect.height()) {
+        if (mDrawingBitmap == null || mDrawingBitmap.getWidth() != width || mDrawingBitmap.getHeight() != height) {
             if (mDrawingBitmap != null) {
                 mDrawingBitmap.recycle();
                 mDrawingBitmap = null;
             }
-            mDrawingBitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888);
+            mDrawingBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             if (mUseCorrectionCanvas) {
                 mDrawingCanvas = new HudWhiteTextCanvas(mDrawingBitmap);
             } else {
@@ -295,7 +306,7 @@ public class HudViewMirroringHelper {
 
             }
         }
-        return rect;
+        return true;
     }
 
     private void drawOntoHud() {

@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:background="@color/six15_red"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Intent Interface Designer" />
+        app:title="Intent Interface Designer"
+        app:titleTextColor="@android:color/white" />
 
     <ToggleButton
         android:id="@+id/fragment_intent_interface_designer_toggle_button"

@@ -50,7 +50,7 @@ public class HudBitmapHelper {
     //Scale and crop a bitmap to HUD size such that, of the valid pixels rectInp, cropRect pixels are visible.
     //Black bars are added to maintain aspect ratio.
     public static Bitmap calculateAdjustedBitmap(@NonNull Bitmap bmpInp) {
-       return calculateAdjustedBitmap(bmpInp, null, null, new Paint());
+        return calculateAdjustedBitmap(bmpInp, null, null, new Paint());
     }
 
     public static Bitmap calculateAdjustedBitmap(@NonNull Bitmap bmpInp, @Nullable Rect rectInp, @Nullable Rect cropRect, @NonNull Paint paint) {
@@ -139,17 +139,23 @@ public class HudBitmapHelper {
     public static String saveBitmapAsJpeg(Context context, Bitmap bmp, int jpegQuality, String folder, String name) {
         return saveBitmapAsJpeg(context, bmp, jpegQuality, folder, name, false);
     }
+
     public static String saveBitmapAsJpeg(Context context, Bitmap bmp, int jpegQuality, String folder, String name, boolean prefer_external) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, jpegQuality, baos);
+        return saveBytesAsFile(context, baos.toByteArray(), folder, name, "jpg", prefer_external);
+    }
+
+    public static String saveBytesAsFile(Context context, byte[] bytes, String folder, String name, String ext, boolean prefer_external) {
         File baseDir = null;
         if (prefer_external) {
             baseDir = context.getExternalFilesDir(null);
         }
-        if (baseDir == null){
+        if (baseDir == null) {
             baseDir = context.getFilesDir();
         }
-        String path = baseDir.getPath() + File.separator + folder + File.separator + name + ".jpg";
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.JPEG, jpegQuality, baos);
+        String path = baseDir.getPath() + File.separator + folder + File.separator + name + "." + ext;
+
 
         File file = new File(path);
         file.mkdirs();
@@ -158,7 +164,7 @@ public class HudBitmapHelper {
         }
         try {
             FileOutputStream fos = new FileOutputStream(file);
-            fos.write(baos.toByteArray());
+            fos.write(bytes);
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();

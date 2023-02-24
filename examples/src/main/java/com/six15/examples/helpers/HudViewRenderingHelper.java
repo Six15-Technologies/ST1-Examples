@@ -34,7 +34,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 
@@ -98,8 +97,9 @@ public class HudViewRenderingHelper {
         triggerLayout();
     }
 
-    public interface Callbacks {
-        void onDraw(Bitmap bitmap, ByteFrame jpegBytes);
+    public static abstract class Callbacks {
+        public void onPreDraw(){}
+        public abstract void onDraw(Bitmap bitmap, ByteFrame jpegBytes);
     }
 
     public void triggerLayout() {
@@ -130,6 +130,9 @@ public class HudViewRenderingHelper {
     }
 
     protected void drawInternal(IHudService hudService) {
+        if (mCallbacks != null){
+            mCallbacks.onPreDraw();
+        }
         mDrawingBitmap.eraseColor(Color.BLACK);
         mView.draw(mDrawingCanvas);
         boolean recycleAfter;

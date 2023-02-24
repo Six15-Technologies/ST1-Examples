@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="false"
@@ -35,26 +36,39 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".CameraSelectionActivity" />
-        <activity android:name=".IntentInterfaceSelectionActivity" />
-
+        <!-- MainActivity-->
         <activity android:name=".static_image.StaticImageActivity" />
+        <activity android:name=".screen_mirroring.ScreenMirroringActivity" />
         <activity android:name=".presentation.PresentingActivity" />
         <activity android:name=".presentation.BackgroundPresentingActivity" />
-        <activity android:name=".view_rendering.BackgroundViewRenderingActivity" />
+        <activity android:name=".IntentInterfaceSelectionActivity" />
+        <activity
+            android:name=".ViewMirroringAndRenderingSelectionActivity"
+            android:exported="true" />
+        <activity android:name=".CameraSelectionActivity" />
+        <activity android:name=".voice_to_text.VoiceToTextActivity" />
+
+        <!-- IntentInterfaceSelectionActivity-->
+        <activity android:name=".intent_interface.IntentInterfaceExamplesActivity" />
+        <activity android:name=".intent_interface.IntentInterfaceDesignerActivity" />
+
+        <!-- ViewMirroringAndRenderingSelectionActivity-->
         <activity android:name=".view_mirroring.ViewMirroringOnDrawActivity" />
         <activity android:name=".view_mirroring.ViewMirroringPixelCopyActivity" />
-        <activity android:name=".camera.CameraActivity" />
-        <activity android:name=".voice_to_text.VoiceToTextActivity" />
-        <activity android:name=".screen_mirroring.ScreenMirroringActivity" />
-
-        <activity android:name=".intent_interface.IntentInterfaceActivity" />
+        <activity android:name=".view_rendering.BackgroundViewRenderingActivity" />
         <activity
-            android:name=".intent_interface.IntentInterfaceDesignerActivity"
+            android:name=".view_rendering.ForegroundSurfaceViewRenderingActivity"
+            android:exported="true" />
+        <activity
+            android:name=".view_rendering.BackgroundSurfaceViewRenderingActivity"
             android:exported="true" />
 
-        <service android:name=".presentation.BackgroundPresentingService" />
+        <!-- CameraSelectionActivity-->
+        <activity android:name=".camera.CameraActivity" />
+
         <service android:name=".view_rendering.BackgroundViewRenderingService" />
+        <service android:name=".view_rendering.BackgroundSurfaceViewRenderingService" />
+        <service android:name=".presentation.BackgroundPresentingService" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

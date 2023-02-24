@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -59,7 +60,21 @@ public class CameraActivity extends HudCompatActivity {
         //Only first time. On secondary times the fragment manager handles it for us.
         mNeedsToCreateFragment = (savedInstanceState == null);
 
-        requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_ALL_PERMISSION);
+        String[] permissions = new String[]{Manifest.permission.CAMERA};
+        if (hasAllPermissions(permissions)) {
+            continueWithPermissions();
+        } else {
+            requestPermissions(permissions, REQUEST_CODE_ALL_PERMISSION);
+        }
+    }
+
+    public boolean hasAllPermissions(String[] appPermissions) {
+        for (String permission : appPermissions) {
+            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -67,45 +82,49 @@ public class CameraActivity extends HudCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_ALL_PERMISSION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (mNeedsToCreateFragment) {
-                    FragmentManager fm = getSupportFragmentManager();
-                    FragmentTransaction ft = fm.beginTransaction();
-
-                    //Using a fragment does 3 things for us here.
-                    //1: Makes an easy to way to delay until permissions are accepted
-                    //2: Allows permission code to be shared between camera examples.
-                    //3: Makes it easy to persist across configuration changes with setRetainInstance(true)
-                    Intent intent = getIntent();
-                    if (intent == null) {
-                        return;
-                    }
-                    int whichFragment = intent.getIntExtra(ARG_USE_WHICH_FRAGMENT, WHICH_FRAGMENT_BITMAP);
-                    Class<? extends Fragment> fragmentClass;
-                    switch (whichFragment) {
-                        case WHICH_FRAGMENT_BITMAP:
-                            fragmentClass = CameraBitmapFragment.class;
-                            break;
-                        case WHICH_FRAGMENT_JPEG:
-                            fragmentClass = CameraJpegFragment.class;
-                            break;
-                        case WHICH_FRAGMENT_SNAPSHOT:
-                            fragmentClass = CameraWithSnapshotFragment.class;
-                            break;
-                        case WHICH_FRAGMENT_SURFACE_VIEW:
-                            fragmentClass = CameraSurfaceViewFragment.class;
-                            break;
-                        case WHICH_FRAGMENT_TEXTURE_VIEW:
-                            fragmentClass = CameraTextureViewFragment.class;
-                            break;
-                        default:
-                            throw new RuntimeException("Unexpected fragment type:" + whichFragment);
-                    }
-                    ft.add(R.id.activity_fragment_holder, fragmentClass, null);
-                    ft.commit();
-                }
+                continueWithPermissions();
             } else {
                 finish();
             }
+        }
+    }
+
+    private void continueWithPermissions() {
+        if (mNeedsToCreateFragment) {
+            FragmentManager fm = getSupportFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+
+            //Using a fragment does 3 things for us here.
+            //1: Makes an easy to way to delay until permissions are accepted
+            //2: Allows permission code to be shared between camera examples.
+            //3: Makes it easy to persist across configuration changes with setRetainInstance(true)
+            Intent intent = getIntent();
+            if (intent == null) {
+                return;
+            }
+            int whichFragment = intent.getIntExtra(ARG_USE_WHICH_FRAGMENT, WHICH_FRAGMENT_BITMAP);
+            Class<? extends Fragment> fragmentClass;
+            switch (whichFragment) {
+                case WHICH_FRAGMENT_BITMAP:
+                    fragmentClass = CameraBitmapFragment.class;
+                    break;
+                case WHICH_FRAGMENT_JPEG:
+                    fragmentClass = CameraJpegFragment.class;
+                    break;
+                case WHICH_FRAGMENT_SNAPSHOT:
+                    fragmentClass = CameraWithSnapshotFragment.class;
+                    break;
+                case WHICH_FRAGMENT_SURFACE_VIEW:
+                    fragmentClass = CameraSurfaceViewFragment.class;
+                    break;
+                case WHICH_FRAGMENT_TEXTURE_VIEW:
+                    fragmentClass = CameraTextureViewFragment.class;
+                    break;
+                default:
+                    throw new RuntimeException("Unexpected fragment type:" + whichFragment);
+            }
+            ft.add(R.id.activity_fragment_holder, fragmentClass, null);
+            ft.commit();
         }
     }
 

@@ -45,9 +45,7 @@
                     activity_main_button_4,
                     activity_main_button_5,
                     activity_main_button_6,
-                    activity_main_button_7,
-                    activity_main_button_8,
-                    activity_main_button_9"
+                    activity_main_button_7"
                     app:flow_horizontalStyle="packed"
                     app:flow_wrapMode="aligned"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -85,23 +83,12 @@
                 <Button
                     android:id="@+id/activity_main_button_6"
                     style="@style/activity_main_button_style"
-                    android:onClick="startBackgroundViewRenderingActivity"
-                    android:text="Background View Rendering" />
+                    android:onClick="startViewMirroringAndRendering"
+                    android:text="View Mirroring and Rendering" />
+
 
                 <Button
                     android:id="@+id/activity_main_button_7"
-                    style="@style/activity_main_button_style"
-                    android:onClick="startViewMirroringOnDrawActivity"
-                    android:text="View Mirroring OnDraw" />
-
-                <Button
-                    android:id="@+id/activity_main_button_8"
-                    style="@style/activity_main_button_style"
-                    android:onClick="startViewMirroringPixelCopyActivity"
-                    android:text="View Mirroring PixelCopy" />
-
-                <Button
-                    android:id="@+id/activity_main_button_9"
                     style="@style/activity_main_button_style"
                     android:onClick="startCameraActivity"
                     android:text="Camera" />

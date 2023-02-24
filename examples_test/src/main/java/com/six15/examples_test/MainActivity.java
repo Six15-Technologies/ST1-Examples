@@ -40,9 +40,6 @@ import com.six15.examples_test.presentation.BackgroundPresentingActivity;
 import com.six15.examples_test.presentation.PresentingActivity;
 import com.six15.examples_test.screen_mirroring.ScreenMirroringActivity;
 import com.six15.examples_test.static_image.StaticImageActivity;
-import com.six15.examples_test.view_mirroring.ViewMirroringOnDrawActivity;
-import com.six15.examples_test.view_mirroring.ViewMirroringPixelCopyActivity;
-import com.six15.examples_test.view_rendering.BackgroundViewRenderingActivity;
 import com.six15.hudservice.IHudService;
 
 public class MainActivity extends HudCompatActivity {
@@ -128,20 +125,12 @@ public class MainActivity extends HudCompatActivity {
         startTestActivity(IntentInterfaceSelectionActivity.class);
     }
 
-    public void startBackgroundViewRenderingActivity(View view) {
-        startTestActivity(BackgroundViewRenderingActivity.class);
+    public void startViewMirroringAndRendering(View view) {
+        startTestActivity(ViewMirroringAndRenderingSelectionActivity.class);
     }
 
     public void startPresentingActivity(View view) {
         startTestActivity(PresentingActivity.class);
-    }
-
-    public void startViewMirroringOnDrawActivity(View view) {
-        startTestActivity(ViewMirroringOnDrawActivity.class);
-    }
-
-    public void startViewMirroringPixelCopyActivity(View view) {
-        startTestActivity(ViewMirroringPixelCopyActivity.class);
     }
 
     public void startCameraActivity(View view) {

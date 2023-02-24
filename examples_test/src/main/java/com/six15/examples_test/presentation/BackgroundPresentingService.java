@@ -39,6 +39,7 @@ import androidx.core.app.NotificationCompat;
 import com.six15.examples.HudPresentingService;
 import com.six15.examples.connection.HudCallbacks;
 import com.six15.examples_test.R;
+import com.six15.examples_test.ServiceIDs;
 import com.six15.hudservice.IHudService;
 
 public class BackgroundPresentingService extends HudPresentingService {
@@ -98,7 +99,7 @@ public class BackgroundPresentingService extends HudPresentingService {
                 .setOngoing(true)
                 .build();
 
-        startForeground(1, notification);
+        startForeground(ServiceIDs.BACKGROUND_PRESENTING_SERVICE, notification);
     }
 
     @Override

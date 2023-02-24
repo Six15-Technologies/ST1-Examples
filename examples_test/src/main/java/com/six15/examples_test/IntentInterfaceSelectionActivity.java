@@ -28,7 +28,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.six15.examples_test.intent_interface.IntentInterfaceActivity;
+import com.six15.examples_test.intent_interface.IntentInterfaceExamplesActivity;
 import com.six15.examples_test.intent_interface.IntentInterfaceDesignerActivity;
 
 public class IntentInterfaceSelectionActivity extends AppCompatActivity {
@@ -46,7 +46,7 @@ public class IntentInterfaceSelectionActivity extends AppCompatActivity {
 
 
     public void startExamples(View view) {
-        startIntentInterfaceActivity(IntentInterfaceActivity.class);
+        startIntentInterfaceActivity(IntentInterfaceExamplesActivity.class);
     }
 
     public void startDesigner(View view) {
