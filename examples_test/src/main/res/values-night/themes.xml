@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ExamplesTest" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="Theme.ExamplesTest" parent="Theme.ExamplesTest.Base">
         <item name="colorPrimary">@color/six15_dark_red</item>
         <item name="colorPrimaryVariant">@color/six15_darker_red</item>
         <item name="colorOnPrimary">@android:color/white</item>

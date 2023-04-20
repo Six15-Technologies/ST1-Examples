@@ -65,6 +65,7 @@ public class IntentInterfaceExamplesActivity extends AppCompatActivity {
     private View mGravityButton;
     private View mImageResourceButton;
     private View mSendLogoButton;
+    private View mSendScreenButton;
 
     private Handler mHandler;
     private boolean mRestoringInstanceState = false;
@@ -147,6 +148,14 @@ public class IntentInterfaceExamplesActivity extends AppCompatActivity {
                 sendSix15Logo();
             }
         });
+        mSendScreenButton = findViewById(R.id.activity_intent_interface_examples_action_send_screen);
+        mSendScreenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHandler.removeCallbacksAndMessages(null);
+                sendScreen();
+            }
+        });
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(HudIntentInterface.Response.ACTION_INTENT_SERVICE_STATE);
 
@@ -210,6 +219,16 @@ public class IntentInterfaceExamplesActivity extends AppCompatActivity {
         Uri imageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
 
         HudIntentInterface.sendActionSend(this, imageUri);
+    }
+
+    private void sendScreen() {
+//        HudIntentInterface.sendScreen(this, new String[]{"Scan Location", "Aisle:M58","Shelf:F10", "Level:2"});
+
+        Intent intent = new Intent("com.six15.hudservice.ACTION_SEND_SCREEN");
+
+        intent.putExtra("lines", new String[]{"Scan Location", "Aisle:M58","Shelf:F10", "Level:2"});
+
+        sendBroadcast(intent);
     }
 
     private Bundle showInitialImage(Context context) {

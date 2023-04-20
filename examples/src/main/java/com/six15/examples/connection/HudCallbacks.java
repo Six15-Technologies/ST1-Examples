@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.six15.hudservice.BLE_Info;
 import com.six15.hudservice.ByteFrame;
 import com.six15.hudservice.Cam720FPS;
 import com.six15.hudservice.DebugMessage;
@@ -229,6 +230,17 @@ public abstract class HudCallbacks extends IHudServiceCallback.Stub {
                         }
                     });
                 }
+
+                @Override
+                public void onBattery(int battery_percent) throws RemoteException {
+                    handler.post(() -> {
+                        try {
+                            innerProxyCallbacks.onBattery(battery_percent);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
             };
         }
     }
@@ -314,6 +326,11 @@ public abstract class HudCallbacks extends IHudServiceCallback.Stub {
         if (DEBUG) Log.d(TAG, "onHudOperationModeChanged() called with: mode = [" + mode + "]");
     }
 
+    public void onBattery(int battery_percent) throws RemoteException {
+        if (DEBUG)
+            Log.d(TAG, "onBattery() called with: battery_percent = [" + battery_percent + "]");
+    }
+
     private void onJsonCommand(byte cmd, String jsonText) throws RemoteException {
         HUD_CommandBYTE command = HUD_CommandBYTE.forValue(cmd);
         if (command == null) {
@@ -363,6 +380,10 @@ public abstract class HudCallbacks extends IHudServiceCallback.Stub {
                     Cam720FPS cam720FPS = new Gson().fromJson(jsonText, Cam720FPS.class);
                     onCam720pFPS(cam720FPS);
                     break;
+                case HC_BLE_DEV_INFO:
+                    BLE_Info ble_info = new Gson().fromJson(jsonText, BLE_Info.class);
+                    onBLE_Info(ble_info);
+                    break;
                 default:
                     if (DEBUG)
                         Log.i(TAG, String.format("Unhandled JSON:%x %d : %s", cmd, cmd, jsonText));
@@ -402,5 +423,8 @@ public abstract class HudCallbacks extends IHudServiceCallback.Stub {
     }
 
     public void onCam720pFPS(@Nullable Cam720FPS cam720FPS) throws RemoteException {
+    }
+
+    public void onBLE_Info(@Nullable BLE_Info ble_info) throws RemoteException {
     }
 }

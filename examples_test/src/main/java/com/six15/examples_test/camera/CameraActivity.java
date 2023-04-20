@@ -39,6 +39,9 @@ import androidx.fragment.app.FragmentTransaction;
 import com.six15.examples.connection.HudCallbacks;
 import com.six15.examples.connection.HudCompatActivity;
 import com.six15.examples_test.R;
+import com.six15.examples_test.camera.scan.CameraHoneywellFragment;
+import com.six15.examples_test.camera.scan.CameraML_KitFragment;
+import com.six15.examples_test.camera.scan.CameraScanditFragment;
 import com.six15.hudservice.IHudService;
 
 public class CameraActivity extends HudCompatActivity {
@@ -48,6 +51,9 @@ public class CameraActivity extends HudCompatActivity {
     public static final int WHICH_FRAGMENT_SURFACE_VIEW = 2;
     public static final int WHICH_FRAGMENT_TEXTURE_VIEW = 3;
     public static final int WHICH_FRAGMENT_SNAPSHOT = 4;
+    public static final int WHICH_FRAGMENT_SCANDIT = 5;
+    public static final int WHICH_FRAGMENT_HONEYWELL = 6;
+    public static final int WHICH_FRAGMENT_MLKIT = 7;
 
     private static final int REQUEST_CODE_ALL_PERMISSION = 2;
     private boolean mNeedsToCreateFragment;
@@ -119,6 +125,15 @@ public class CameraActivity extends HudCompatActivity {
                     break;
                 case WHICH_FRAGMENT_TEXTURE_VIEW:
                     fragmentClass = CameraTextureViewFragment.class;
+                    break;
+                case WHICH_FRAGMENT_SCANDIT:
+                    fragmentClass = CameraScanditFragment.class;
+                    break;
+                case WHICH_FRAGMENT_HONEYWELL:
+                    fragmentClass = CameraHoneywellFragment.class;
+                    break;
+                case WHICH_FRAGMENT_MLKIT:
+                    fragmentClass = CameraML_KitFragment.class;
                     break;
                 default:
                     throw new RuntimeException("Unexpected fragment type:" + whichFragment);

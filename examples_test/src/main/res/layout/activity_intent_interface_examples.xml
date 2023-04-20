@@ -30,7 +30,8 @@
             activity_intent_interface_examples_padding_button,
             activity_intent_interface_examples_gravity_button,
             activity_intent_interface_examples_action_send_res,
-            activity_intent_interface_examples_action_send_content"
+            activity_intent_interface_examples_action_send_content,
+            activity_intent_interface_examples_action_send_screen"
             app:flow_horizontalStyle="packed"
             app:flow_wrapMode="aligned"
             app:layout_constraintTop_toTopOf="parent" />
@@ -78,6 +79,12 @@
             android:id="@+id/activity_intent_interface_examples_action_send_content"
             style="@style/activity_main_button_style"
             android:text="Send Image Content Provider"
+            app:layout_constraintWidth_percent="0.5"
+            tools:enabled="true" />
+        <Button
+            android:id="@+id/activity_intent_interface_examples_action_send_screen"
+            style="@style/activity_main_button_style"
+            android:text="Send Screen"
             app:layout_constraintWidth_percent="0.5"
             tools:enabled="true" />
 

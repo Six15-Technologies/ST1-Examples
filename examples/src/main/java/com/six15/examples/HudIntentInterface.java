@@ -36,6 +36,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HudIntentInterface {
@@ -59,10 +60,17 @@ public class HudIntentInterface {
     public static final String EXTRA_SEND_TEXT_GRAVITY_N = "gravity";
     public static final String EXTRA_SEND_TEXT_WEIGHT_N = "weight";
     public static final String EXTRA_SEND_TEXT_MAX_LINES_N = "max_lines";
+    public static final int SEND_TEXT_N_MAX = 4;//Max value of N in each parameter.
+    public static final int SEND_TEXT_MAX_LINES_MAX = 4;//Max value of max_lines#.
+
 
     public static final String ACTION_CLEAR_DISPLAY = "com.six15.hudservice.ACTION_CLEAR_DISPLAY";
 
     public static final String ACTION_STOP_INTENT_SERVICE = "com.six15.hudservice.ACTION_STOP_INTENT_SERVICE";
+
+    public static final String ACTION_SEND_SCREEN = "com.six15.hudservice.ACTION_SEND_SCREEN";
+    public static final String EXTRA_SEND_SCREEN_LINES = "lines";
+
 
     public static void startIntentInterface(Context context) {
         startIntentInterface(context, null, null);
@@ -138,6 +146,26 @@ public class HudIntentInterface {
 
     public static void sendText(Context context, @NonNull Bundle extras) {
         Intent intent = new Intent(HudIntentInterface.ACTION_SEND_TEXT);
+        intent.putExtras(extras);
+        context.sendBroadcast(intent);
+    }
+
+    public static void sendScreen(Context context, ArrayList<String> lines_list) {
+        Bundle extras = new Bundle();
+        String[] lines_array = new String[lines_list.size()];
+        lines_array = lines_list.toArray(lines_array);
+        extras.putStringArray(EXTRA_SEND_SCREEN_LINES, lines_array);
+        sendScreen(context, extras);
+    }
+
+    public static void sendScreen(Context context, String[] lines) {
+        Bundle extras = new Bundle();
+        extras.putStringArray(EXTRA_SEND_SCREEN_LINES, lines);
+        sendScreen(context, extras);
+    }
+
+    public static void sendScreen(Context context, @NonNull Bundle extras) {
+        Intent intent = new Intent(HudIntentInterface.ACTION_SEND_SCREEN);
         intent.putExtras(extras);
         context.sendBroadcast(intent);
     }

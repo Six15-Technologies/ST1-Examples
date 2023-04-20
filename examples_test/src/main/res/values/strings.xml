@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">Example Tests</string>
+    <string name="app_name">ST1 Examples</string>
     <string name="counter_format">Frame: %1$d</string>
+    <string name="camera_scanner_focus_label">AF</string>
 </resources>

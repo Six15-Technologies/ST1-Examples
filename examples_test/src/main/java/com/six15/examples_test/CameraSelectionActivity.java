@@ -63,4 +63,15 @@ public class CameraSelectionActivity extends AppCompatActivity {
     public void startCameraSnapshot(View view) {
         startCameraActivity(CameraActivity.WHICH_FRAGMENT_SNAPSHOT);
     }
+
+    public void startCameraScandit(View view) {
+        startCameraActivity(CameraActivity.WHICH_FRAGMENT_SCANDIT);
+    }
+
+    public void startCameraHoneywell(View view) {
+        startCameraActivity(CameraActivity.WHICH_FRAGMENT_HONEYWELL);
+    }
+    public void startCameraML_Kit(View view) {
+        startCameraActivity(CameraActivity.WHICH_FRAGMENT_MLKIT);
+    }
 }

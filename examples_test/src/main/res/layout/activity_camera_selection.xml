@@ -36,7 +36,10 @@
                     activity_camera_selection_button_2,
                     activity_camera_selection_button_3,
                     activity_camera_selection_button_4,
-                    activity_camera_selection_button_5"
+                    activity_camera_selection_button_5,
+                    activity_camera_selection_button_6,
+                    activity_camera_selection_button_7,
+                    activity_camera_selection_button_8"
                 app:flow_horizontalStyle="packed"
                 app:flow_wrapMode="aligned"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -71,6 +74,23 @@
                 android:onClick="startCameraSnapshot"
                 android:text="Camera Snapshot" />
 
+            <Button
+                android:id="@+id/activity_camera_selection_button_6"
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraScandit"
+                android:text="Camera Scandit" />
+
+            <Button
+                android:id="@+id/activity_camera_selection_button_7"
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraHoneywell"
+                android:text="Camera Honeywell" />
+
+            <Button
+                android:id="@+id/activity_camera_selection_button_8"
+                style="@style/activity_main_button_style"
+                android:onClick="startCameraML_Kit"
+                android:text="Camera ML Kit" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

@@ -6,7 +6,7 @@ For more documentation see https://six15.engineering, and particularly https://s
 
 __Running these examples requires the "Six15 ST1" application to be installed on your device.__
 
-A APK file can be found as part of our Android SDK release at https://six15.engineering/st1_sdk_overview/#latest-release.
+An APK file can be found as part of our Android SDK release at https://six15.engineering/st1_sdk_overview/#latest-release.
 Or directly downloaded at https://six15.engineering/latest_st1_app
 
 The app is also available on the Google Play Store https://play.google.com/store/apps/details?id=com.six15.st1_connect.

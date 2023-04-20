@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_camera_base_scanner_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/fragment_camera_base_scanner_instructions"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:text="Point the HUD at a barcode or QR code to view it."
+        android:textAppearance="@android:style/TextAppearance.Large"
+        app:autoSizeMaxTextSize="30sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@id/fragment_camera_base_scanner_image"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/fragment_camera_base_scanner_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/black"
+        app:layout_constraintBottom_toTopOf="@id/fragment_camera_base_scanner_focus_slider"
+        app:layout_constraintDimensionRatio="4:3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_camera_base_scanner_instructions" />
+
+    <ImageView
+        android:id="@+id/fragment_camera_base_scanner_image_overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/fragment_camera_base_scanner_image"
+        app:layout_constraintLeft_toLeftOf="@id/fragment_camera_base_scanner_image"
+        app:layout_constraintRight_toRightOf="@id/fragment_camera_base_scanner_image"
+        app:layout_constraintTop_toTopOf="@id/fragment_camera_base_scanner_image" />
+
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/fragment_camera_base_scanner_focus_slider"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:stepSize="1"
+        android:valueFrom="-10"
+        android:valueTo="110"
+        app:layout_constraintBottom_toTopOf="@id/fragment_camera_base_scanner_barcode_text"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintLeft_toRightOf="@id/fragment_camera_base_scanner_focus_switch"
+        app:layout_constraintRight_toLeftOf="@id/fragment_camera_base_scanner_name"
+        app:layout_constraintTop_toBottomOf="@id/fragment_camera_base_scanner_image"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/fragment_camera_base_scanner_focus_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:text="@string/camera_scanner_focus_label"
+        app:layout_constraintBottom_toBottomOf="@id/fragment_camera_base_scanner_focus_slider"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fragment_camera_base_scanner_focus_slider"
+        app:switchPadding="10dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fragment_camera_base_scanner_name"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="15dp"
+        android:gravity="center"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintBottom_toBottomOf="@id/fragment_camera_base_scanner_focus_slider"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fragment_camera_base_scanner_focus_switch"
+        tools:text="Name" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/fragment_camera_base_scanner_barcode_text"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        app:autoSizeMaxTextSize="30sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.1"
+        tools:text="Example Barcode, but really really long so it takes more than 1 line" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

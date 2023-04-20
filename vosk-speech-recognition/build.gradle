@@ -16,24 +16,19 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
     packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
-        exclude("META-INF/*.kotlin_module")
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/license.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/notice.txt', 'META-INF/ASL2.0', 'META-INF/*.kotlin_module']
+        }
     }
+
+    namespace 'com.six15.vosk_speech_recognition'
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
-    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     implementation project(':hudservice-aidl')
     implementation project(':examples')
@@ -46,8 +41,8 @@ dependencies {
     //        }
     //    }
     //}
-    api group: 'com.alphacephei', name: 'vosk-android', version: '0.3.21'
+    api group: 'com.alphacephei', name: 'vosk-android', version: '0.3.21'//Newer versions break backwards compatibility.
     //This is the Vosk english model.
     implementation project(':vosk-speech-recognition-model')
-    implementation 'net.java.dev.jna:jna:5.8.0@aar'
+    implementation 'net.java.dev.jna:jna:5.13.0@aar'
 }

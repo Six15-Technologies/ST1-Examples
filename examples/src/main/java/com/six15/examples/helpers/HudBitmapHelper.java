@@ -146,7 +146,7 @@ public class HudBitmapHelper {
         return saveBytesAsFile(context, baos.toByteArray(), folder, name, "jpg", prefer_external);
     }
 
-    public static String saveBytesAsFile(Context context, byte[] bytes, String folder, String name, String ext, boolean prefer_external) {
+    public static String getSavePath(Context context, String folder, String name, String ext, boolean prefer_external) {
         File baseDir = null;
         if (prefer_external) {
             baseDir = context.getExternalFilesDir(null);
@@ -154,8 +154,11 @@ public class HudBitmapHelper {
         if (baseDir == null) {
             baseDir = context.getFilesDir();
         }
-        String path = baseDir.getPath() + File.separator + folder + File.separator + name + "." + ext;
+        return baseDir.getPath() + File.separator + folder + File.separator + name + "." + ext;
+    }
 
+    public static String saveBytesAsFile(Context context, byte[] bytes, String folder, String name, String ext, boolean prefer_external) {
+        String path = getSavePath(context, folder, name, ext, prefer_external);
 
         File file = new File(path);
         file.mkdirs();

@@ -1,6 +1,10 @@
 plugins {
     id 'com.android.application'
+    id 'kotlin-android'
 }
+
+Properties local_properties = new Properties()
+local_properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
     compileSdkVersion 33
@@ -8,10 +12,12 @@ android {
 
     defaultConfig {
         applicationId "com.six15.examples_test"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"
+        buildConfigField "String", "SCANDIT_LICENSE_KEY", "\"" + local_properties.getProperty("SCANDIT_LICENSE_KEY") + "\""
+        buildConfigField "String", "HONEYWELL_LICENSE_ID", "\"" + local_properties.getProperty("HONEYWELL_LICENSE_ID") + "\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,7 +39,8 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -47,15 +54,31 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+        resources.excludes.add("META-INF/**/*")
+    }
+    namespace 'com.six15.examples_test'
 }
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
+    api 'com.scandit.datacapture:core:6.17.0-beta.2'
+    api 'com.scandit.datacapture:barcode:6.17.0-beta.2'
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation project(':examples')
     implementation project(':hudservice-aidl')
     implementation project(':vosk-speech-recognition')
+
+    implementation files('libs/SwiftDecoderMobile.aar')
+    implementation 'com.google.mlkit:barcode-scanning:17.1.0'
 }
