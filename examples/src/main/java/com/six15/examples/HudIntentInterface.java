@@ -33,8 +33,14 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +55,58 @@ public class HudIntentInterface {
     public static class Response {
         public static final String ACTION_INTENT_SERVICE_STATE = "com.six15.hudservice.ACTION_INTENT_SERVICE_STATE";
         public static final String EXTRA_INTENT_SERVICE_STATE_RUNNING = "running";
+    }
+
+    @Keep
+    public static class RegionInfo {
+        private static final Gson sGson = new Gson();
+        @Expose
+        public String text;
+
+        @Expose
+        @SerializedName(value = "l")
+        public int left;
+
+        @Expose
+        @SerializedName(value = "t")
+        public int top;
+
+        @Expose
+        @SerializedName(value = "r")
+        public int right;
+
+        @Expose
+        @SerializedName(value = "b")
+        public int bottom;
+
+        @NonNull
+        public String toJsonString() {
+            return sGson.toJson(this);
+        }
+
+        @Nullable
+        public static RegionInfo fromString(String json) {
+            if (json == null) {
+                return null;
+            }
+            try {
+                return sGson.fromJson(json, RegionInfo.class);
+            } catch (JsonSyntaxException e) {
+                return null;
+            }
+        }
+
+        @Nullable
+        public static RegionInfo[] arrayFromString(String json) {
+            if (json == null) {
+                return null;
+            }
+            try {
+                return sGson.fromJson(json, RegionInfo[].class);
+            } catch (JsonSyntaxException e) {
+                return null;
+            }
+        }
     }
 
     public static final String ACTION_SEND_TEXT = "com.six15.hudservice.ACTION_SEND_TEXT";
@@ -71,6 +129,8 @@ public class HudIntentInterface {
     public static final String ACTION_SEND_SCREEN = "com.six15.hudservice.ACTION_SEND_SCREEN";
     public static final String EXTRA_SEND_SCREEN_LINES = "lines";
 
+    public static final String ACTION_SEND_REGIONS = "com.six15.hudservice.ACTION_SEND_REGIONS";
+    public static final String EXTRA_SEND_REGIONS_REGIONS_JSON = "regions_json";
 
     public static void startIntentInterface(Context context) {
         startIntentInterface(context, null, null);
@@ -162,6 +222,18 @@ public class HudIntentInterface {
         Bundle extras = new Bundle();
         extras.putStringArray(EXTRA_SEND_SCREEN_LINES, lines);
         sendScreen(context, extras);
+    }
+
+    public static void sendRegions(Context context, RegionInfo[] regions) {
+        Bundle extras = new Bundle();
+        String[] regions_json = new String[regions.length];
+        for (int i = 0; i < regions_json.length; i++) {
+            regions_json[i] = regions[i].toJsonString();
+        }
+        extras.putStringArray(EXTRA_SEND_REGIONS_REGIONS_JSON, regions_json);
+        Intent intent = new Intent(HudIntentInterface.ACTION_SEND_REGIONS);
+        intent.putExtras(extras);
+        context.sendBroadcast(intent);
     }
 
     public static void sendScreen(Context context, @NonNull Bundle extras) {

@@ -36,6 +36,8 @@ import androidx.fragment.app.Fragment;
 import com.six15.examples_test.R;
 import com.six15.vosk_speech_recognition.HudSpeechRecognitionHelper;
 
+import java.util.List;
+
 public class VoiceToTextFragment extends Fragment {
 
     private String mLastVoiceCommand = null;
@@ -70,6 +72,7 @@ public class VoiceToTextFragment extends Fragment {
                     public void onError() {
                         Toast.makeText(VoiceToTextFragment.this.getContext(), "Failed to start Speech Recognition", Toast.LENGTH_SHORT).show();
                     }
+
                 }, null);
     }
 

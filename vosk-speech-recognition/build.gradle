@@ -33,16 +33,8 @@ dependencies {
     implementation project(':hudservice-aidl')
     implementation project(':examples')
 
-    //This depends on Vosk's maven repository, which should be added in your top level build.gradle
-    //allprojects {
-    //    repositories {
-    //        maven {
-    //            url 'https://alphacephei.com/maven/'
-    //        }
-    //    }
-    //}
-    api group: 'com.alphacephei', name: 'vosk-android', version: '0.3.21'//Newer versions break backwards compatibility.
-    //This is the Vosk english model.
-    implementation project(':vosk-speech-recognition-model')
+    implementation 'com.alphacephei:vosk-android:0.3.47'
+    implementation project(':vosk-speech-recognition-model') //This is the Vosk english model.
     implementation 'net.java.dev.jna:jna:5.13.0@aar'
+    implementation 'androidx.annotation:annotation:1.6.0'
 }

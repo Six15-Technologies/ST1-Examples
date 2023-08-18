@@ -31,31 +31,39 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.EmptySuper;
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import com.google.gson.JsonParser;
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
 import com.six15.hudservice.Constants;
 
 import org.vosk.LibVosk;
 import org.vosk.LogLevel;
 import org.vosk.Model;
 import org.vosk.Recognizer;
-import org.vosk.android.Assets;
 import org.vosk.android.RecognitionListener;
 import org.vosk.android.SpeechService;
+import org.vosk.android.StorageService;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
-public class HudSpeechRecognitionHelper implements RecognitionListener {
+public class HudSpeechRecognitionHelper {
 
     private static final String TAG = HudSpeechRecognitionHelper.class.getSimpleName();
     private final Thread mPrepareThread;
+    private final Gson mGson;
     private SpeechService mSpeechService;
     private final Handler mMainHandler;
     private boolean mRecording;
@@ -63,12 +71,14 @@ public class HudSpeechRecognitionHelper implements RecognitionListener {
     public AudioDeviceInfo mCurrentAudioDevice = null;
 
     private final boolean PREFER_SIX15_MIC_OVER_OTHER_EXTERNAL = false;
+    @NonNull
     private final Callback mCallback;
     private String mLastPartial = "";
 
-    public HudSpeechRecognitionHelper(@NonNull Context context, @Nullable Callback callback, @Nullable Collection<String> commandGrammar) {
+    public HudSpeechRecognitionHelper(@NonNull Context context, @NonNull Callback callback, @Nullable Collection<String> commandGrammar) {
         mCallback = callback;
         mContext = context;
+        mGson = new Gson();
         mMainHandler = new Handler(Looper.getMainLooper());
 
         mPrepareThread = new Thread(() -> {
@@ -112,45 +122,51 @@ public class HudSpeechRecognitionHelper implements RecognitionListener {
     }
 
     private void prepareSpeechService(Context context, Collection<String> commandGrammar) {
-        Assets assets;
         try {
-            assets = new Assets(context);
-            File assetDir = assets.syncAssets();
-            Model voiceModel = new Model(assetDir.toString() + "/model-android");
+            String path = StorageService.sync(context, "model-android", "sync");
+            Log.i(TAG, "prepareSpeechService: path:" + path);
+            Model voiceModel = new Model(path);
 
             Recognizer voiceRecognizer;
-            if (commandGrammar != null) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("[");
-
-                sb.append("\"");
-                sb.append("[unk]");
-                sb.append("\"");
-                sb.append(", ");
-
-                for (Iterator<String> iterator = commandGrammar.iterator(); iterator.hasNext(); ) {
-                    String phrase = iterator.next();
-                    sb.append("\"");
-                    sb.append(phrase.toLowerCase());
-                    sb.append("\"");
-                    if (iterator.hasNext()) {
-                        sb.append(", ");
-                    }
-                }
-                sb.append("]");
-                voiceRecognizer = new Recognizer(voiceModel, 16000.0f, sb.toString());
+            String json_grammar = createGrammar(commandGrammar);
+            if (json_grammar != null) {
+                voiceRecognizer = new Recognizer(voiceModel, 16000.0f, json_grammar);
             } else {
                 voiceRecognizer = new Recognizer(voiceModel, 16000.0f);
             }
-
             LibVosk.setLogLevel(LogLevel.INFO);
             mSpeechService = new SpeechService(voiceRecognizer, 16000.0f);
-            mSpeechService.addListener(this);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (UnsatisfiedLinkError e) {
             Log.e(TAG, "Vosk model failed to link. Device may be too old for libvosk to run");
         }
+    }
+
+    @Nullable
+    private String createGrammar(Collection<String> commandGrammar) {
+        if (commandGrammar == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+
+        sb.append("\"");
+        sb.append("[unk]");
+        sb.append("\"");
+        sb.append(", ");
+
+        for (Iterator<String> iterator = commandGrammar.iterator(); iterator.hasNext(); ) {
+            String phrase = iterator.next();
+            sb.append("\"");
+            sb.append(phrase.toLowerCase());
+            sb.append("\"");
+            if (iterator.hasNext()) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
 
@@ -173,11 +189,9 @@ public class HudSpeechRecognitionHelper implements RecognitionListener {
             Log.i(TAG, "Using mic:" + audioDevice.getProductName());
             setPreferredDeviceWithReflection(mSpeechService, audioDevice);
         }
-        if (mCallback != null) {
-            mCallback.onMicChanged(audioDevice);
-        }
+        mCallback.onMicChanged(audioDevice);
         mCurrentAudioDevice = audioDevice;
-        mSpeechService.startListening();
+        mSpeechService.startListening(mListener);
         mRecording = true;
     }
 
@@ -296,49 +310,89 @@ public class HudSpeechRecognitionHelper implements RecognitionListener {
         mSpeechService = null;
     }
 
-    @Override
-    public void onPartialResult(String s) {
-        String partial = JsonParser.parseString(s).getAsJsonObject().get("partial").getAsString();
-        if (partial.equals("")) {
-            return;
-        }
+    @Keep
+    private static class VoskPartialResult {
+        @Expose
+        public String partial;
+    }
 
-        String nextPhrase;
-        if (partial.startsWith(mLastPartial)) {
-            nextPhrase = partial.substring(mLastPartial.length()).trim();
-        } else {
-            nextPhrase = partial;
-        }
-        if (nextPhrase.equals("")) {
-            return;
-        }
+    @Keep
+    private static class VoskResult {
+        @Expose
+        public String text;
+    }
 
-        mLastPartial = partial;
-        if (mCallback != null) {
+    final RecognitionListener mListener = new RecognitionListener() {
+
+        @Override
+        public void onPartialResult(String s) {
+            VoskPartialResult data = mGson.fromJson(s, VoskPartialResult.class);
+            if (data == null || data.partial == null || data.partial.equals("")) {
+                return;
+            }
+            String[] partialsArray = data.partial.split(" ");
+            List<String> partialsList = Arrays.asList(partialsArray);
+            mCallback.onPartialPhrase(partialsList);
+
+            String nextPhrase;
+            if (data.partial.startsWith(mLastPartial)) {
+                nextPhrase = data.partial.substring(mLastPartial.length()).trim();
+            } else {
+                nextPhrase = data.partial;
+            }
+            if (nextPhrase.equals("")) {
+                return;
+            }
+
+            mLastPartial = data.partial;
             mCallback.onVoiceCommand(nextPhrase);
         }
-    }
 
-    @Override
-    public void onResult(String s) {
-        mLastPartial = "";
-    }
+        @Override
+        public void onResult(String s) {
+            VoskResult data = mGson.fromJson(s, VoskResult.class);
+            if (data == null || data.text == null || data.text.equals("")) {
+                return;
+            }
+            String[] partialsArray = data.text.split(" ");
+            List<String> partialsList = Arrays.asList(partialsArray);
+            mCallback.onFullPhrase(partialsList);
+            mLastPartial = "";
+        }
 
-    @Override
-    public void onError(Exception e) {
-        Log.w(TAG, "onError() called with: e = [" + e + "]");
-    }
+        @Override
+        public void onFinalResult(String hypothesis) {
+        }
 
-    @Override
-    public void onTimeout() {
-        Log.w(TAG, "onTimeout() called");
-    }
+        @Override
+        public void onError(Exception e) {
+            Log.w(TAG, "onError() called with: e = [" + e + "]");
+            mCallback.onError();
+        }
 
-    public interface Callback {
-        void onVoiceCommand(String phrase);
+        @Override
+        public void onTimeout() {
+            Log.w(TAG, "onTimeout() called");
+        }
+    };
 
-        void onMicChanged(@Nullable AudioDeviceInfo audioDevice);
+    public abstract static class Callback {
+        @EmptySuper
+        public void onVoiceCommand(String phrase) {
+        }
 
-        void onError();
+        @EmptySuper
+        public void onMicChanged(@Nullable AudioDeviceInfo audioDevice) {
+        }
+
+        public abstract void onError();
+
+        @EmptySuper
+        public void onFullPhrase(List<String> segments) {
+        }
+
+        @EmptySuper
+        public void onPartialPhrase(List<String> segments) {
+        }
     }
 }

@@ -40,6 +40,7 @@ import com.six15.examples_test.presentation.BackgroundPresentingActivity;
 import com.six15.examples_test.presentation.PresentingActivity;
 import com.six15.examples_test.screen_mirroring.ScreenMirroringActivity;
 import com.six15.examples_test.static_image.StaticImageActivity;
+import com.six15.examples_test.voice_to_text.VoiceToTextActivity;
 import com.six15.hudservice.IHudService;
 
 public class MainActivity extends HudCompatActivity {
@@ -136,4 +137,9 @@ public class MainActivity extends HudCompatActivity {
     public void startCameraActivity(View view) {
         startTestActivity(CameraSelectionActivity.class);
     }
+
+    public void startVoiceToTextActivity(View view) {
+        startTestActivity(VoiceToTextActivity.class);
+    }
+
 }

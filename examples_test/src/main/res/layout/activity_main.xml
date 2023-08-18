@@ -45,7 +45,8 @@
                     activity_main_button_4,
                     activity_main_button_5,
                     activity_main_button_6,
-                    activity_main_button_7"
+                    activity_main_button_7,
+                    activity_main_button_8"
                     app:flow_horizontalStyle="packed"
                     app:flow_wrapMode="aligned"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -92,6 +93,12 @@
                     style="@style/activity_main_button_style"
                     android:onClick="startCameraActivity"
                     android:text="Camera" />
+
+                <Button
+                    android:id="@+id/activity_main_button_8"
+                    style="@style/activity_main_button_style"
+                    android:onClick="startVoiceToTextActivity"
+                    android:text="Voice to Text" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

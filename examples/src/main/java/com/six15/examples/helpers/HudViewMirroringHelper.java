@@ -42,9 +42,9 @@ import android.view.ViewTreeObserver;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 
 import com.six15.examples.HudWhiteTextCanvas;
@@ -135,9 +135,9 @@ public class HudViewMirroringHelper {
         return null;
     }
 
-    private final LifecycleObserver mLifecycleObserver = new LifecycleObserver() {
-        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        public void lifecyclePause() {
+    private final LifecycleObserver mLifecycleObserver = new DefaultLifecycleObserver() {
+        @Override
+        public void onPause(@NonNull LifecycleOwner owner) {
             mAllowRendering = false;
             Activity activity = tryToGetActivity(mView.getContext());
             if (activity != null) {
@@ -153,8 +153,9 @@ public class HudViewMirroringHelper {
 
         }
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        public void lifecycleResume() {
+        @Override
+        public void onResume(@NonNull LifecycleOwner owner) {
+            DefaultLifecycleObserver.super.onResume(owner);
             mAllowRendering = true;
             queueDraw();
         }
